@@ -21,18 +21,19 @@ class AnaliseAntiFraudeController {
     }
   };
 
-
   static listaAnalises = async (req, res) => {
     try {
-      const listagemAnalises = await AnaliseAntiFraude.find();
+      const listagemAnalises = await AnaliseAntiFraude.find({ statusAnalise: 'em analise' });
 
       if (listagemAnalises.length > 0) {
         res.status(200).json(listagemAnalises);
       } else {
         res.status(404).send('Nenhuma análise encontrada');
-      };
+      }
     } catch (error) {
       res.status(500).json(error);
+    }
+  };
 
   static atualizarStatusDaAnalise = async (req, res) => {
     try {
@@ -69,6 +70,18 @@ class AnaliseAntiFraudeController {
     } catch (error) {
       console.log(error.message);
       return res.status(500).send({ message: `Erro no servidor - ${error}` });
+    }
+  };
+
+  static listaAnaliseById = async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const analiseById = await AnaliseAntiFraude.findById(id);
+
+      res.status(200).json(analiseById);
+    } catch (error) {
+      res.status(500).json(error);
     }
   };
 }
