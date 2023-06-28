@@ -1,6 +1,5 @@
 import Account from '../models/Account.js';
-import criptografia from '../../middlewares/bcryptMiddleware.js';
-
+import criptografia from '../../middleware/bcryptMiddleware.js';
 
 class AccountController {
   static findAccounts = (_req, res) => {
