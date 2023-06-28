@@ -21,6 +21,19 @@ class AnaliseAntiFraudeController {
     }
   };
 
+
+  static listaAnalises = async (req, res) => {
+    try {
+      const listagemAnalises = await AnaliseAntiFraude.find();
+
+      if (listagemAnalises.length > 0) {
+        res.status(200).json(listagemAnalises);
+      } else {
+        res.status(404).send('Nenhuma análise encontrada');
+      };
+    } catch (error) {
+      res.status(500).json(error);
+
   static atualizarStatusDaAnalise = async (req, res) => {
     try {
       const { id } = Object(req.params);
