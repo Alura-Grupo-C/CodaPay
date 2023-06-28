@@ -158,13 +158,13 @@ paths:
   /api/admin/antifraude/{id}:
     get:
       tags:
-        - "accounts"
-      summary: Find account
-      description: Find one specific account
+        - "anti-fraude"
+      summary: detalhar uma analise AntiFraude
+      description: detalhar uma analise AntiFraude pelo id
       parameters:
         - name: id
           in: path
-          description: ID of account that needs to be fetched
+          description: ID da analise AntiFraude
           required: true
           schema:
             type: string
@@ -174,20 +174,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
+                $ref: "#/components/schemas/AntiFraudeDetalharPorId"
         "400":
-          description: invalid ID supplied
+          description: bad request
         "404":
           description: not found
+        "500":
+          description: internal server error
     put:
       tags:
-        - "accounts"
-      summary: Update account
-      description: Update account by entering the whole updated account
+        - "anti-fraude"
+      summary: atualizar um statusAnalise 
+      description:  " status permitidos: 'em analise', 'aprovada', 'rejeitada'"
       parameters:
         - name: id
           in: path
-          description: ID of account that needs to be updated
+          description: ID da analise AntiFraude
           required: true
           schema:
             type: string
@@ -195,36 +197,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Account"
+              $ref: "#/components/schemas/AntiFraudeAlterarStatus"
       responses:
         "200":
           description: ok
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
+                $ref: "#/components/schemas/AntiFraudeDetalharPorId"
         "400":
-          description: invalid ID supplied
-        "401":
-          description: unauthorized
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          description: bad request
+        "404":
+          description: not found
+        "500":
+          description: internal server error
 
 components:
   schemas:
@@ -258,7 +244,7 @@ components:
             enum:
             - 'em analise'
             - 'aprovada'
-            - 'reprovada'
+            - 'rejeitada'
           dataCriacao: 
             type: string
             format: date-time
@@ -274,3 +260,62 @@ components:
         idTransacao:
           type: string
 
+    AntiFraudeAlterarStatus:
+      type: object
+      properties:
+        statusAnalise:
+            type: string
+            enum:
+            - 'em analise'
+            - 'aprovada'
+            - 'rejeitada'
+
+    AntiFraudeDetalharPorId:
+        type: object
+        properties:
+          id:
+            type: string
+          statusAnalise:
+            type: string
+            enum:
+            - 'em analise'
+            - 'aprovada'
+            - 'rejeitada'
+          dataCriacao: 
+            type: string
+            format: date-time
+          ultimaModificacao: 
+            type: string
+            format: date-time
+          cliente:
+            type: object
+            properties:
+              id:
+                type: string
+              rendaMensal:
+                type: number
+              vencimentoFatura:
+                type: string
+                format: date
+              Endereco:
+                type: object
+                properties:
+                  rua:
+                    type: string
+                  numero:
+                    type: string
+                  complemento:
+                    type: string
+                  cep:
+                    type: string
+                  cidade:
+                    type: string
+                  estado:
+                    type: string
+          transacao:
+            type: object
+            properties:
+              id:
+                type: string
+              valor:
+                type: number
