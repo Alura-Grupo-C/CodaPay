@@ -7,7 +7,7 @@ const analiseAntiFraudeSchema = new mongoose.Schema(
       ref: 'clientes',
       required: true,
     },
-    0: {
+    idTransacao: {
       type: mongoose.Types.ObjectId,
       required: true,
     },
