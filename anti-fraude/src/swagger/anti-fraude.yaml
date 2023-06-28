@@ -112,6 +112,51 @@ paths:
           description: unauthorized
         "400":
           description: invalid ID supplied
+
+# ANTIFRAUDES
+  /api/admin/antifraude:
+    get:
+      tags:
+        - "anti-fraude"
+      summary: Lista analise de AntiFraude
+      description: Lista todas analise de AntiFraude
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AntiFraudeListar"
+        "404":
+          description: not found
+        "500":
+          description: internal server error
+    post:
+      tags:
+        - "anti-fraude"
+      summary: adicionar analise
+      description: adicionar uma nova analise de AntiFraude
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AntiFraudeCriar"
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "401":
+          description: unauthorized
+        "500":
+          description: internal server error
+
+
+
 components:
   schemas:
     Account:
@@ -127,3 +172,36 @@ components:
         senha:
           type: string
           format: password
+          
+    AntiFraudeListar:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+           type: string
+          idCliente:
+            type: string
+          idTransacao:
+            type: string
+          statusAnalise:
+            type: string
+            enum:
+            - 'em analise'
+            - 'aprovada'
+            - 'reprovada'
+          dataCriacao: 
+            type: string
+            format: date-time
+          ultimaModificacao: 
+            type: string
+            format: date-time
+
+    AntiFraudeCriar:
+      type: object
+      properties:
+        idCliente:
+          type: string
+        idTransacao:
+          type: string
+
