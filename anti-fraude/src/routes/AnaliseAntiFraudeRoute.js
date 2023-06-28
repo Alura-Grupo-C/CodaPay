@@ -4,6 +4,7 @@ import AnaliseAntiFraudeController from '../controllers/AnaliseAntiFraudeControl
 const router = express.Router();
 
 router
-  .post('/api/admin/antifraude', AnaliseAntiFraudeController.criarAnalise);
+  .post('/api/admin/antifraude', AnaliseAntiFraudeController.criarAnalise)
+  .get('/api/admin/antifraude', AnaliseAntiFraudeController.listaAnalises);
 
 export default router;
