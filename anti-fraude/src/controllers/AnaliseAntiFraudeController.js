@@ -23,7 +23,7 @@ class AnaliseAntiFraudeController {
 
   static listaAnalises = async (req, res) => {
     try {
-      const listagemAnalises = await AnaliseAntiFraude.find();
+      const listagemAnalises = await AnaliseAntiFraude.find({statusAnalise: 'em analise'});
 
       if (listagemAnalises.length > 0) {
         res.status(200).json(listagemAnalises);
