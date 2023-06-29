@@ -60,7 +60,7 @@ class ClienteController{
               res.status(200).json({messagem:'dados válidos', id: id, rendaMensal: renda})
             }
             else{
-              res.status(404).send('Dados do cartão invalido')
+              res.status(400).send('Dados do cartão invalido')
             }
           }else{
             res.status(404).send('Dados do cartão não encontrado')
