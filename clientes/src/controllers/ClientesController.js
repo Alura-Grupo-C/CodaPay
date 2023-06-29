@@ -39,6 +39,32 @@ class ClienteController{
           res.status(500).send({message: erro.message});
       }        
     }
+
+    static validarDadosCliente = async (req, res) => {
+      const { numeroCartao, nomeComoCartao, validadeCartao, cvcCartao } = req.body
+      
+      try{
+        const numero = await Cliente.find()
+        const resultado = numero.filter((numero, indice) => {
+          return (numero.dadosCartao.numeroCartao == numeroCartao) == true
+        
+        })
+        const id = resultado[0]._id
+        const nome = resultado[0].dadosCartao.nomeComoCartao
+        const dataValidade = resultado[0].dadosCartao.validadeCartao
+        const cvc = resultado[0].dadosCartao.cvcCartao
+    
+        if(resultado){
+          if(nomeComoCartao == nome && validadeCartao == dataValidade && cvcCartao == cvc){
+            const id = numero.id
+            const renda = resultado[0].dadosPessoais.rendaMensal;
+            res.status(200).json({messagem:'dados validos', id: id, rendaMensal: renda})
+          }
+        }
+      }catch(erro){
+        res.status(500).send({message: erro.message});
+      }
+    }
 }
 
 export default ClienteController;
