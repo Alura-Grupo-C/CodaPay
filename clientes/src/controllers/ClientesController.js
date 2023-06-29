@@ -47,8 +47,8 @@ static validarDadosCliente = async (req, res) => {
 
     try {
       const clientes = await Cliente.find();
-      const resultado = clientes.filter((cliente, indice) => (cliente.dadosCartao.numeroCartao === numeroCartao) === true);
-
+      const resultado = clientes.filter((cliente, indice) => (cliente.dadosCartao.numeroCartao === numeroCartao));
+    
       if (resultado) {
         const id = resultado[0]._id;
         const nome = resultado[0].dadosCartao.nomeCartao;
@@ -56,16 +56,16 @@ static validarDadosCliente = async (req, res) => {
         const cvc = resultado[0].dadosCartao.cvcCartao;
         if (nomeCartao === nome && validadeCartao === dataValidade && cvcCartao === cvc) {
           const renda = resultado[0].dadosPessoais.rendaMensal;
-          res.status(200).json({ message: 'dados válidos', id, rendaMensal: renda });
+          res.status(200).json({ message: 'Dados válidos', id, rendaMensal: renda });
         } else {
-          res.status(404).send('Dados do cartão invalido');
+          res.status(400).send({ message: 'Dados do cartão inválido' });
         }
       } else {
-        res.status(404).send('Dados do cartão não encontrado');
+        res.status(404).send({ message: 'Dados do cartão não encontrado' });
       }
     } catch (erro) {
       if (erro.message = "Cannot read properties of undefined (reading '_id')") {
-        return res.status(404).send('Dados do cartão não encontrado');
+        return res.status(404).send({ message: 'Dados do cartão não encontrado' });
       }
       res.status(500).send({ message: erro.message });
     }
