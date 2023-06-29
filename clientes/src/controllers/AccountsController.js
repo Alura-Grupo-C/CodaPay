@@ -1,7 +1,8 @@
 import Account from '../models/Account.js';
+import criptografia from '../../middlewares/bcryptMiddleware.js';
 
 class AccountController {
-  static findAccounts = (_req, res) => {
+  static findAccounts = (req, res) => {
     Account.find((err, allAccounts) => {
       if (err) {
         return res.status(500).send({ message: err.message });
@@ -24,6 +25,8 @@ class AccountController {
   };
 
   static createAccount = async (req, res) => {
+    const { senha } = req.body;
+    req.body.senha = await criptografia.protegeSenha(senha);
     const account = new Account({
       ...req.body,
       createdDate: Date(),
