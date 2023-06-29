@@ -56,7 +56,6 @@ class ClienteController{
     
         if(resultado){
           if(nomeComoCartao == nome && validadeCartao == dataValidade && cvcCartao == cvc){
-            const id = numero.id
             const renda = resultado[0].dadosPessoais.rendaMensal;
             res.status(200).json({messagem:'dados validos', id: id, rendaMensal: renda})
           }
