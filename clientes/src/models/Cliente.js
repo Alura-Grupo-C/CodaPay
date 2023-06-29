@@ -6,34 +6,34 @@ const ClienteSchema = new mongoose.Schema(
       dadosPessoais:{
         nome: { 
             type: String, 
-            required: [ true, 'Se precisa nome' ],
-            validate: [validate.Nome, "nome precisar ter mas de 3 letras, não pode começar com numero"]
+            required: [ true, 'Nome necessário' ],
+            validate: [validate.Nome, "Nome precisa ter mais de 3 letras, não pode começar com número"]
         },
         cpf: {
             type: String, 
-            required  : [ true, 'Se precisa cpf' ],
-            validate: [validate.Cpf, "cpf invalido"],
+            required  : [ true, 'CPF necessário' ]
+            validate: [validate.Cpf, "CPF inválido"],
             match: [
                 /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}|[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/,
-                "cpf invalido",
+                "CPF inválido",
             ]
         },
         email: { 
             type: String, 
-            required  : [ true, 'Se precisa email' ],
-            validate: [validate.Email, "email invalido"],
+            required  : [ true, 'Email necessário' ],
+            validate: [validate.Email, "Email inválido"],
             match: [
                 /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-                "email invalido",
+                "Email inválido",
             ],
         },
         telefone: {
             type: String, 
-            required  : [ true, 'Se precisa numero de telefone' ],
-            validate: [validate.Telefone, "telefone invalido"],
+            required  : [ true, 'Número de telefone necessário' ],
+            validate: [validate.Telefone, "Telefone inválido"],
             match: [
                 /^[0-9]{2}([0-9]{8}|[0-9]{9})/,
-                "telefone invalido",
+                "Telefone inválido",
             ],
         },
         rendaMensal: {
@@ -48,11 +48,11 @@ const ClienteSchema = new mongoose.Schema(
         },
         numeroDoEndereco: { 
             type: String, 
-            validate: [validate.numeroEndereco, "numero do endereço invalido"],
+            validate: [validate.numeroEndereco, "Número de endereço inválido"],
             required: true },
         complementoDoEndereco: { 
             type: String, 
-            validate: [validate.complementoEndereco, "complemento do endereço invalido"],
+            validate: [validate.complementoEndereco, "Complemento do endereço inválido"],
             required: true 
         },
         cepEndereco: {
@@ -73,7 +73,7 @@ const ClienteSchema = new mongoose.Schema(
             type: String, 
             required: true
         },
-        nomeComoCartao:{
+        nomeCartao:{
             type: String, 
             required: true
         },
@@ -81,9 +81,9 @@ const ClienteSchema = new mongoose.Schema(
         validadeCartao:{
             type: String, 
             required: true,
-            validate: [validate.MesAno, "data invalida"],
+            validate: [validate.MesAno, "Data inválida"],
         },
-        cvcCartao:{
+        cvvCartao:{
             type: String, 
             required: true
         },
