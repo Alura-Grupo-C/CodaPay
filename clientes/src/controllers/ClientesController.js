@@ -57,7 +57,7 @@ class ClienteController{
           const cvc = resultado[0].dadosCartao.cvcCartao
             if(nomeCartao === nome && validadeCartao === dataValidade && cvcCartao === cvc){
               const renda = resultado[0].dadosPessoais.rendaMensal;
-              res.status(200).json({messagem:'dados válidos', id: id, rendaMensal: renda})
+              res.status(200).json({message:'dados válidos', id: id, rendaMensal: renda})
             }
             else{
               res.status(404).send('Dados do cartão invalido')

@@ -7,7 +7,6 @@ const ClienteSchema = new mongoose.Schema(
         nome: { 
             type: String, 
             required: [ true, 'Nome necessário' ],
-            validate: [validate.Nome, "Nome precisa ter mais de 3 letras, não pode começar com número"]
         },
         cpf: {
             type: String, 
