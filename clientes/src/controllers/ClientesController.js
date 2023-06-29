@@ -49,20 +49,22 @@ class ClienteController{
           return (cliente.dadosCartao.numeroCartao === numeroCartao) === true
         
         })
-        const id = resultado[0]._id
-        const nome = resultado[0].dadosCartao.nomeCartao
-        const dataValidade = resultado[0].dadosCartao.validadeCartao
-        const cvv = resultado[0].dadosCartao.cvvCartao
     
         if(resultado){
-          if(nomeCartao === nome && validadeCartao === dataValidade && cvvCartao === cvv){
-            const renda = resultado[0].dadosPessoais.rendaMensal;
-            res.status(200).json({messagem:'dados válidos', id: id, rendaMensal: renda})
+          const id = resultado[0]._id
+          const nome = resultado[0].dadosCartao.nomeCartao
+          const dataValidade = resultado[0].dadosCartao.validadeCartao
+          const cvv = resultado[0].dadosCartao.cvvCartao
+            if(nomeCartao === nome && validadeCartao === dataValidade && cvvCartao === cvv){
+              const renda = resultado[0].dadosPessoais.rendaMensal;
+              res.status(200).json({messagem:'dados válidos', id: id, rendaMensal: renda})
+            }
+            else{
+              res.status(404).send('Dados do cartão invalido')
+            }
+          }else{
+            res.status(404).send('Dados do cartão não encontrado')
           }
-          else{
-            res.status(404).send('Dados do cartão invalido')
-          }
-        }
       }catch(erro){
         res.status(500).send({message: erro.message});
       }

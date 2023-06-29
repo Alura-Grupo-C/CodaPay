@@ -39,7 +39,8 @@ class validate{
             return true;
         }
         else{
-            return true;
+            const re = /^[0-9]+$/;
+            return re.test(numero)
         }
     };
 }
