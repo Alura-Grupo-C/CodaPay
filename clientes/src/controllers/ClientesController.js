@@ -30,7 +30,8 @@ class ClienteController {
       if (cliente) {
         const dadosPessoais = { dadosPessoais: cliente.dadosPessoais };
         const endereco = { endereco: cliente.endereco };
-        res.status(200).json({ Cliente: [dadosPessoais, endereco] });
+        const vencimentoFatura = { vencimentoFatura: cliente.dadosCartao.diaVencimentoFatura };
+        res.status(200).json({ Cliente: [dadosPessoais, endereco, vencimentoFatura] });
       } else {
         res.status(404).send({ message: 'Cliente não encontrado' });
       }
