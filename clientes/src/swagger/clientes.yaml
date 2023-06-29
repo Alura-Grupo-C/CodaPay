@@ -7,6 +7,8 @@ info:
 paths:
   /api/admin/accounts:
     get:
+      tags:
+        - Accounts
       summary: List accounts
       description: List all accounts
       responses:
@@ -19,6 +21,8 @@ paths:
                 items:
                   $ref: "#/components/schemas/Account"
     post:
+      tags:
+        - Accounts
       summary: Add account
       description: Add new account
       requestBody:
@@ -37,6 +41,8 @@ paths:
           description: unauthorized
   /api/admin/accounts/{id}:
     get:
+      tags:
+        - Accounts
       summary: Find account
       description: Find one specific account
       parameters:
@@ -58,6 +64,8 @@ paths:
         '404':
           description: not found
     put:
+      tags:
+        - Accounts
       summary: Update account
       description: Update account by entering the whole updated account
       parameters:
@@ -84,6 +92,8 @@ paths:
         '401':
           description: unauthorized
     delete:
+      tags:
+        - Accounts
       summary: Delete account
       description: Delete account by entering its ID
       parameters:
