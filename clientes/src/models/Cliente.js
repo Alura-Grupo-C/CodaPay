@@ -83,7 +83,7 @@ const ClienteSchema = new mongoose.Schema(
             required: true,
             validate: [validate.MesAno, "Data inválida"],
         },
-        cvvCartao:{
+        cvcCartao:{
             type: String, 
             required: true
         },

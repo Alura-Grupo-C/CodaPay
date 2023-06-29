@@ -40,7 +40,7 @@ class validate{
         }
         else{
             const re = /^[0-9]+$/;
-            return re.test(numero)
+            return re.test(complemento)
         }
     };
 }

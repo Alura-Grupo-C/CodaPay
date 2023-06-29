@@ -41,7 +41,7 @@ class ClienteController{
     }
 
     static validarDadosCliente = async (req, res) => {
-      const { numeroCartao, nomeCartao, validadeCartao, cvvCartao } = req.body
+      const { numeroCartao, nomeCartao, validadeCartao, cvcCartao } = req.body
       
       try{
         const clientes = await Cliente.find()
@@ -54,8 +54,8 @@ class ClienteController{
           const id = resultado[0]._id
           const nome = resultado[0].dadosCartao.nomeCartao
           const dataValidade = resultado[0].dadosCartao.validadeCartao
-          const cvv = resultado[0].dadosCartao.cvvCartao
-            if(nomeCartao === nome && validadeCartao === dataValidade && cvvCartao === cvv){
+          const cvc = resultado[0].dadosCartao.cvcCartao
+            if(nomeCartao === nome && validadeCartao === dataValidade && cvcCartao === cvc){
               const renda = resultado[0].dadosPessoais.rendaMensal;
               res.status(200).json({messagem:'dados válidos', id: id, rendaMensal: renda})
             }
@@ -66,6 +66,9 @@ class ClienteController{
             res.status(404).send('Dados do cartão não encontrado')
           }
       }catch(erro){
+        if(erro.message = "Cannot read properties of undefined (reading '_id')"){
+          return res.status(404).send('Dados do cartão não encontrado')
+        }
         res.status(500).send({message: erro.message});
       }
     }
