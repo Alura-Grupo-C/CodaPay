@@ -40,7 +40,7 @@ class ClienteController {
     }
   };
 
-  static validarDadosCliente = async (req, res) => {
+static validarDadosCliente = async (req, res) => {
     const {
       numeroCartao, nomeCartao, validadeCartao, cvcCartao,
     } = req.body;
