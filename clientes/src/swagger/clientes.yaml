@@ -5,6 +5,76 @@ info:
     API do microsserviço de Clientes
   version: 0.0.1
 paths:
+  /api/admin/clientes/{id}:
+    get:
+      tags:
+        - Clientes
+      summary: Listar os clientes
+      description: Listar todos os clientes
+      parameters:
+        - name: id
+          in: path
+          description: ID do cliente
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              examples:
+                Cliente:
+                  value:
+                    dadosPessoais:
+                      nome: string
+                      cpf: string
+                      email: string
+                      telefone: string
+                      rendaMensal: number
+                    endereco:
+                      ruaDoEndereco: string
+                      numeroDoEndereco: string
+                      complementoDoEndereco: string
+                      cepEndereco: string
+                      cidadeEndereco: string
+                      estadoEndereco: string
+                    vencimentoFatura: string
+        '404':
+          description: não encontrado
+  /api/admin/validar:
+    post:
+      tags:
+        - Clientes
+      summary: validar dados
+      description: endpoint para validar dados de cartão
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Validar"
+            examples:
+              values:
+                numeroCartao: "9635587896532"
+                nomeCartao: Jorge Lopez
+                validadeCartao: 04/2028
+                cvcCartao: "752"
+      responses:
+        '200':
+          description: valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Validar"
+              examples:
+                dados:
+                  values:
+                    numeroCartao: "9635587896532"
+                    nomeCartao: Jorge Lopez
+                    validadeCartao: 04/2028
+                    cvcCartao: "752"
+        '404':
+          description: numero de cartão não encontrado
   /api/admin/accounts:
     get:
       tags:
@@ -125,3 +195,61 @@ components:
         senha:
           type: string
           format: password
+    Cliente:
+      type: object
+      properties:
+        id:
+          type: string
+        dadosPessoais:
+          type: object
+          properties:
+            nome:
+              type: string
+            cpf:
+              type: string
+            email:
+              type: string
+              format: email
+            telefone:
+              type: string
+            rendaMensal:
+              type: number
+        endereco:
+          type: object
+          properties:
+            ruaDoEndereco:
+              type: string
+            numeroDoEndereco:
+              type: string
+            complementoDoEndereco:
+              type: string
+            cepEndereco:
+              type: string
+            cidadeEndereco:
+              type: string
+            estadoEndereco:
+              type: string
+        dadosCartao:
+          type: object
+          properties:
+            numeroCartao:
+              type: string
+            nomeCartao:
+              type: string
+            validadeCartao:
+              type: string
+            cvcCartao:
+              type: string
+            diaVencimentoFatura:
+              type: string
+    Validar:
+      type: object
+      properties:
+        numeroCartao:
+          type: string
+        nomeCartao:
+          type: string
+        validadeCartao:
+          type: string
+        cvcCartao:
+          type: string       
