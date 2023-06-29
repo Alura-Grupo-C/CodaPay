@@ -11,7 +11,7 @@ const ClienteSchema = new mongoose.Schema(
         },
         cpf: {
             type: String, 
-            required  : [ true, 'CPF necessário' ]
+            required  : [ true, 'CPF necessário' ],
             validate: [validate.Cpf, "CPF inválido"],
             match: [
                 /^([0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}|[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}\-?[0-9]{2})$/,
