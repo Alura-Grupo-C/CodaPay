@@ -54,7 +54,7 @@ class AnaliseAntiFraudeController {
         return res.status(400).send({ message: `O estado da analise '${novoStatus}' não é valido ` });
       }
       if (statusAtual === 'rejeitada' || statusAtual === 'aprovada') {
-        return res.status(400).send({ message: `não é possivel alterar o status da analise atual: '${statusAtual}'` });
+        return res.status(403).send({ message: `não é possivel alterar o status da analise atual: '${statusAtual}'` });
       }
       if (statusAtual === novoStatus) {
         return res.status(400).send({ message: 'o novo status não pode ser igual ao atual' });
@@ -77,11 +77,19 @@ class AnaliseAntiFraudeController {
     try {
       const { id } = req.params;
 
+      if (!(id.match(/^[0-9a-fA-F]{24}$/))) {
+        return res.status(400).send({ message: 'o id informado nao é valido' });
+      }
+
       const analiseById = await AnaliseAntiFraude.findById(id);
 
-      res.status(200).json(analiseById);
+      if (!analiseById) {
+        return res.status(404).send({ message: 'analise nao encontrada' });
+      }
+
+      return res.status(200).json(analiseById);
     } catch (error) {
-      res.status(500).json(error);
+      return res.status(500).json(error);
     }
   };
 }
