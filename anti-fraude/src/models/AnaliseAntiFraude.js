@@ -13,8 +13,8 @@ const analiseAntiFraudeSchema = new mongoose.Schema(
     },
     statusAnalise: {
       type: String,
-      ref: 'transacoes',
-      enum: ['aprovada', 'em analise', 'rejeitada'],
+      ref: 'transactions',
+      enum: ['aprovada', 'rejeitada'],
       required: true,
     },
     dataCriacao: {
