@@ -3,7 +3,7 @@ import criptografia from '../../middlewares/bcryptMiddleware.js';
 import tokenHandler from '../../middlewares/jwtMiddleware.js';
 
 class AccountController {
-  static findAccounts = (_req, res) => {
+  static findAccounts = (req, res) => {
     Account.find((err, allAccounts) => {
       if (err) {
         return res.status(500).send({ message: err.message });
