@@ -59,6 +59,9 @@ class ClienteController{
             const renda = resultado[0].dadosPessoais.rendaMensal;
             res.status(200).json({messagem:'dados validos', id: id, rendaMensal: renda})
           }
+          else{
+            res.status(404).send('Dados do cartão invalido')
+          }
         }
       }catch(erro){
         res.status(500).send({message: erro.message});
