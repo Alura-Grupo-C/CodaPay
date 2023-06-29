@@ -60,8 +60,7 @@ class TransactionController {
         });
       };
 
-      // colocar detalhamento da transacao
-      res.status(status === 'Aprovada' ? 201 : 303).set('Location', `localhost:3002/`).send({ transactionId: transaction._id, status })
+      res.status(status === 'Aprovada' ? 201 : 303).set('Location', `localhost:3002/api/admin/transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
     } catch (err) {
       console.log(err);
       res.status(500).send({message: err.message});
