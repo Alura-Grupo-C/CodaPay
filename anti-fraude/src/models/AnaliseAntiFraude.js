@@ -2,19 +2,33 @@ import mongoose from 'mongoose';
 
 const analiseAntiFraudeSchema = new mongoose.Schema(
   {
+    statusAnalise: {
+      type: String,
+      enum: ['em analise', 'aprovada', 'rejeitada'],
+      required: true,
+    },
     idCliente: {
-      type: mongoose.Types.ObjectId,
-      ref: 'clientes',
+      type: String,
+      required: true,
+    },
+    informacoesCliente: {
+      type: Object,
+      required: true,
+    },
+    enderecoCliente: {
+      type: Object,
+      required: true,
+    },
+    vencimentoFatura: {
+      type: Number,
       required: true,
     },
     idTransacao: {
-      type: mongoose.Types.ObjectId,
+      type: String,
       required: true,
     },
-    statusAnalise: {
-      type: String,
-      ref: 'transactions',
-      enum: ['aprovada', 'rejeitada'],
+    valorTranferencia: {
+      type: mongoose.Types.Decimal128,
       required: true,
     },
     dataCriacao: {
