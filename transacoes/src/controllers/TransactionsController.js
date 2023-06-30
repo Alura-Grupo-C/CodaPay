@@ -6,6 +6,22 @@ const ANTI_FRAUD_API = 'http://anti-fraude:3000/api/admin/antifraude'
 
 class TransactionController {
   // private method
+  static #postAPI = async (api, data) => {
+    let response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+    });
+    const status = response.status;
+
+    response = await response.json()
+
+    return {status, response};
+  }
+
   static #postTransactionOnDB = async (data) => {
     const transaction = new Transaction({
       ...data
@@ -28,64 +44,40 @@ class TransactionController {
     let status = 'Em análise';
 
     try {
-      const validateCard = await fetch(VALIDATE_CARD_API, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body),
-      });
+      const validateCard = await this.#postAPI(VALIDATE_CARD_API, body)
 
       if (validateCard.status === 404 || validateCard.status === 400) {
         status = 'Reprovada';
 
-        const transaction = await this.#postTransactionOnDB({
+        await this.#postTransactionOnDB({
           valor,
           status
         });
 
-        await fetch(ANTI_FRAUD_API, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-              idTransacao: transaction._id
-          }),
-        });
-
-        return res.status(400).send({ message: 'Dados inválidos' });
+        return res.status(400).send({ message: validateCard.response.message });
       }
 
-      if (validateCard.rendaMensal >= 0.5 * valor) {
+      if (validateCard.response.rendaMensal >= 0.5 * valor) {
         status = 'Aprovada';
       }
 
       const transaction = await this.#postTransactionOnDB({
           valor,
-          idCliente: validateCard._id,
+          idCliente: validateCard.response.id,
           status
         });
 
       if (status === 'Em análise') {
         const bodyAntiFraud = {
-          idCliente: validateCard._id,
-          idTransacao: transaction._id
+          idCliente: validateCard.response.id,
+          idTransacao: transaction._id,
+          valorTransacao: transaction.valor
         };
 
-        await fetch(ANTI_FRAUD_API, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(bodyAntiFraud),
-        });
+        await this.#postAPI(ANTI_FRAUD_API, bodyAntiFraud);
       };
 
-      res.status(status === 'Aprovada' ? 201 : 303).set('Location', `localhost:3002/api/admin/transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
+      return res.status(status === 'Aprovada' ? 201 : 303).set('Location', `transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
 
     } catch (err) {
       console.log(err);
@@ -98,11 +90,11 @@ class TransactionController {
     
     try {
       const transaction =  await Transaction.findById(id)
-      return res.status(200).send(transaction)
+      return res.status(200).json(transaction)
       
     } catch (error) {
       if (error.message.includes('Cast to ObjectId failed for value')) {
-        return res.status(404).send('ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.')
+        return res.status(404).send({message:'ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.'})
       }
     }
   }
@@ -126,16 +118,16 @@ class TransactionController {
       transaction.status = status
       await transaction.save()
 
-      res.status(200).send(`Status da Transação alterado para ${status}.`)
+      res.status(204).send({message:`Status da Transação alterado para ${status}.`})
     
     } catch (error) {
       if (error.message.includes('Cast to ObjectId failed for value')) {
-        return res.status(404).send('ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.')
+        return res.status(404).send({message: 'ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.'})
       }
       if (error instanceof Error) {
-        return res.status(400).send(error.message)
+        return res.status(400).send({message: error.message})
       } 
-      res.status(500).send(error.message);
+      res.status(500).send({message: error.message});
     }
   }
 };

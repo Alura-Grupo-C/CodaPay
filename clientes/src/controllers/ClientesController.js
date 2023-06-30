@@ -58,14 +58,14 @@ static validarDadosCliente = async (req, res) => {
           const renda = resultado[0].dadosPessoais.rendaMensal;
           res.status(200).json({ message: 'Dados válidos', id, rendaMensal: renda });
         } else {
-          res.status(400).send({ message: 'Dados do cartão inválido' });
+          res.status(400).send({ message: 'Dados do cartão inválidos' });
         }
       } else {
-        res.status(404).send({ message: 'Dados do cartão não encontrado' });
+        res.status(404).send({ message: 'Dados do cartão não encontrados' });
       }
     } catch (erro) {
       if (erro.message = "Cannot read properties of undefined (reading '_id')") {
-        return res.status(404).send({ message: 'Dados do cartão não encontrado' });
+        return res.status(404).send({ message: 'Dados do cartão não encontrados' });
       }
       res.status(500).send({ message: erro.message });
     }
