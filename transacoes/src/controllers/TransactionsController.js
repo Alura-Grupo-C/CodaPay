@@ -19,7 +19,7 @@ class TransactionController {
 
     response = await response.json()
 
-    return {status, ...response};
+    return {status, response};
   }
 
   static #postTransactionOnDB = async (data) => {
@@ -60,7 +60,7 @@ class TransactionController {
       if (validateCard.rendaMensal >= 0.5 * valor) {
         status = 'Aprovada';
       }
-      res.status(200).send(validateCard)
+
       const transaction = await this.#postTransactionOnDB({
           valor,
           idCliente: validateCard.id,
@@ -76,7 +76,7 @@ class TransactionController {
         await this.#postAPI(ANTI_FRAUD_API, bodyAntiFraud);
       };
 
-      res.status(status === 'Aprovada' ? 201 : 303).set('Location', `transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
+      return res.status(status === 'Aprovada' ? 201 : 303).set('Location', `transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
 
     } catch (err) {
       console.log(err);
