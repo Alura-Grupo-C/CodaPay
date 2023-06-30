@@ -5,9 +5,9 @@ const router = express.Router();
 
 router
     .get('/api/admin/clientes', ClienteController.findClientes)
-    .get('/api/admin/clientes/:id', ClienteController.findClienteById)
     .post('/api/admin/validar', ClienteController.validarDadosCliente)
     .post('/api/admin/clientes', ClienteController.createCliente)
+    .get('/api/admin/clientes/:id', ClienteController.findClienteById)
 
 
 export default router;
