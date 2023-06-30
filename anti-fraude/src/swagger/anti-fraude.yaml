@@ -149,7 +149,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
+                example: {idAnaliseAntiFraude: a000000000000000}
         "401":
           description: unauthorized
         "500":
@@ -259,6 +259,8 @@ components:
           type: string
         idTransacao:
           type: string
+        valorTranferencia:
+          type: number
 
     AntiFraudeAlterarStatus:
       type: object
@@ -273,49 +275,55 @@ components:
     AntiFraudeDetalharPorId:
         type: object
         properties:
-          id:
+          d:
             type: string
           statusAnalise:
             type: string
             enum:
             - 'em analise'
             - 'aprovada'
-            - 'rejeitada'
+          idCliente:
+            type: string
+          informacoesCliente:
+            type: object
+            properties:
+              nome:
+                type: string
+              cpf:
+                type: string
+              email:
+                type: string
+              telefone:
+                type: string
+              rendaMensal:
+                type: number
+              vencimentoFatura:
+                type: number
+                format: date
+          enderecoCliente:
+            type: object
+            properties:
+              ruaDoEndereco:
+                type: string
+              numeroDoEndereco:
+                type: string
+              complementoDoEndereco:
+                type: string
+              cepEndereco:
+                type: string
+              cidadeEndereco:
+                type: string
+              estadoEndereco:
+                type: string
+          vencimentoFatura:
+            type: number
+          idTransacao:
+            type: string
+          valorTranferencia:
+            type: number        
           dataCriacao: 
             type: string
             format: date-time
           ultimaModificacao: 
             type: string
             format: date-time
-          cliente:
-            type: object
-            properties:
-              id:
-                type: string
-              rendaMensal:
-                type: number
-              vencimentoFatura:
-                type: string
-                format: date
-              Endereco:
-                type: object
-                properties:
-                  rua:
-                    type: string
-                  numero:
-                    type: string
-                  complemento:
-                    type: string
-                  cep:
-                    type: string
-                  cidade:
-                    type: string
-                  estado:
-                    type: string
-          transacao:
-            type: object
-            properties:
-              id:
-                type: string
-              valor:
-                type: number

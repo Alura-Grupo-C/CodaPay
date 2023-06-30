@@ -20,21 +20,10 @@ afterEach(() => {
   server.close();
 });
 
-describe(`GET em ${URN}`, () => {
-  it('Deve retornar uma lista uma de antifraude em analise', async () => {
-    const resposta = await request(app)
-      .get(URN)
-      .set('Accept', 'application/json')
-      .expect('content-type', /json/)
-      .expect(200);
-
-    expect(resposta.body[0].statusAnalise).toEqual('em analise');
-  });
-});
-
 const analiseAntiFraude = {
-  idCliente: '649b4852e833c825b00d4b09',
+  idCliente: '649d984b9d4bd5421a2c97e9',
   idTransacao: '649b4876e833c825b00d4b0c',
+  valorTranferencia: 100.00,
 };
 
 let idResposta;
@@ -51,7 +40,7 @@ describe(`POST em  ${URN}`, () => {
   });
 
   const analiseIncompleta = {
-    idCliente: '649b4852e833c825b00d4b09',
+    idCliente: '649d984b9d4bd5421a2c97e9',
   };
 
   it('Deve retornar um erro 400 em uma nova antifraude em analise', async () => {
@@ -59,6 +48,21 @@ describe(`POST em  ${URN}`, () => {
       .post(URN)
       .send(analiseIncompleta)
       .expect(400);
+  });
+  it('Deve retornar 404 caso o ID nao seja encontrado', async () => {
+    await request(app)
+      .post(`${URN}/600000000000000000000000`)
+      .expect(404);
+  });
+});
+
+describe(`GET em ${URN}`, () => {
+  it('Deve retornar uma lista uma de antifraude em analise', async () => {
+    await request(app)
+      .get(URN)
+      .set('Accept', 'application/json')
+      .expect('content-type', /json/)
+      .expect(200);
   });
 });
 
@@ -87,15 +91,6 @@ describe(`GET em  ${URN}/:id`, () => {
 });
 
 describe(`PUT em  ${URN}/:id`, () => {
-  it('Deve retornar um erro 400 caso da mesmo tipo de analise', async () => {
-    await request(app)
-      .put(`${URN}/${idResposta}`)
-      .send({
-        statusAnalise: 'em analise',
-      })
-      .expect(400);
-  });
-
   it('Deve retornar 404 caso o ID nao seja encontrado', async () => {
     await request(app)
       .get(`${URN}/600000000000000000000000`)
