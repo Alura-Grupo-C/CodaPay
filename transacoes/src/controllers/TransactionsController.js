@@ -90,11 +90,11 @@ class TransactionController {
     
     try {
       const transaction =  await Transaction.findById(id)
-      return res.status(200).send(transaction)
+      return res.status(200).json(transaction)
       
     } catch (error) {
       if (error.message.includes('Cast to ObjectId failed for value')) {
-        return res.status(404).send('ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.')
+        return res.status(404).send({message:'ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.'})
       }
     }
   }
@@ -118,16 +118,16 @@ class TransactionController {
       transaction.status = status
       await transaction.save()
 
-      res.status(200).send(`Status da Transação alterado para ${status}.`)
+      res.status(204).send({message:`Status da Transação alterado para ${status}.`})
     
     } catch (error) {
       if (error.message.includes('Cast to ObjectId failed for value')) {
-        return res.status(404).send('ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.')
+        return res.status(404).send({message: 'ID da Transação Inválido. Não foi encontrada nenhuma transação com essa ID.'})
       }
       if (error instanceof Error) {
-        return res.status(400).send(error.message)
+        return res.status(400).send({message: error.message})
       } 
-      res.status(500).send(error.message);
+      res.status(500).send({message: error.message});
     }
   }
 };
