@@ -4,7 +4,7 @@ const analiseAntiFraudeSchema = new mongoose.Schema(
   {
     statusAnalise: {
       type: String,
-      enum: ['em analise', 'aprovada', 'rejeitada'],
+      enum: ['Aprovada', 'Em análise', 'Reprovada'],
       required: true,
     },
     idCliente: {

@@ -5,7 +5,7 @@ async function consultarCliente(id) {
   try {
     const url = `http://localhost:3001/api/admin/clientes/${id}`;
     const response = await fetch(url, {
-      method: 'get',
+      method: 'GET',
       dataType: 'json',
       headers: {
         Accept: 'application/json',
@@ -20,6 +20,26 @@ async function consultarCliente(id) {
     return cliente;
   } catch (error) {
     return null;
+  }
+}
+
+async function atualizarStatusTransacao(id, novoStatus) {
+  const data = {
+    status: novoStatus,
+  };
+  try {
+    const url = `http://localhost:3002/api/admin/transactions/${id}`;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    const transacao = await response.json();
+    return transacao;
+  } catch (error) {
+    return { status: 500, message: `falha no servidor: ${error}` };
   }
 }
 
@@ -46,7 +66,7 @@ class AnaliseAntiFraudeController {
         vencimentoFatura: vencimento,
         idTransacao,
         valorTranferencia,
-        statusAnalise: 'em analise',
+        statusAnalise: 'Em análise',
         dataCriacao: Date(),
         ultimaModificacao: Date(),
       });
@@ -91,22 +111,26 @@ class AnaliseAntiFraudeController {
 
       const statusAtual = analiseAntiFraude.statusAnalise;
       const novoStatus = req.body.statusAnalise;
-      if (novoStatus !== 'em analise' && novoStatus !== 'aprovada' && novoStatus !== 'rejeitada') {
+      if (novoStatus !== 'Em análise' && novoStatus !== 'Aprovada' && novoStatus !== 'Reprovada') {
         return res.status(400).send({ message: `O estado da analise '${novoStatus}' não é valido ` });
       }
-      if (statusAtual === 'rejeitada' || statusAtual === 'aprovada') {
+      if (statusAtual === 'Reprovada' || statusAtual === 'Aprovada') {
         return res.status(403).send({ message: `não é possivel alterar o status da analise atual: '${statusAtual}'` });
       }
+      const idTransacao = analiseAntiFraude.idTransacao;
+      const transacao = await atualizarStatusTransacao(idTransacao, novoStatus);
 
-      await AnaliseAntiFraude.findByIdAndUpdate(id, {
-        $set: {
-          statusAnalise: novoStatus,
-          ultimaModificacao: Date(),
-        },
-      });
-      return res.status(200).json({ message: ' status atualizado' });
+      if (transacao.status === 200) {
+        await AnaliseAntiFraude.findByIdAndUpdate(id, {
+          $set: {
+            statusAnalise: novoStatus,
+            ultimaModificacao: Date(),
+          },
+        });
+      }
+
+      return res.status(transacao.status).json({ message: transacao.message });
     } catch (error) {
-      console.log(error.message);
       return res.status(500).send({ message: `Erro no servidor - ${error}` });
     }
   };
