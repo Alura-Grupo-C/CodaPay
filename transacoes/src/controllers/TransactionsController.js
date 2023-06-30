@@ -6,6 +6,22 @@ const ANTI_FRAUD_API = 'http://anti-fraude:3000/api/admin/antifraude'
 
 class TransactionController {
   // private method
+  static #postAPI = async (api, data) => {
+    let response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+    });
+    const status = response.status;
+
+    response = await response.json()
+
+    return {status, ...response};
+  }
+
   static #postTransactionOnDB = async (data) => {
     const transaction = new Transaction({
       ...data
@@ -28,44 +44,26 @@ class TransactionController {
     let status = 'Em análise';
 
     try {
-      const validateCard = await fetch(VALIDATE_CARD_API, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body),
-      });
+      const validateCard = await this.#postAPI(VALIDATE_CARD_API, body)
 
       if (validateCard.status === 404 || validateCard.status === 400) {
         status = 'Reprovada';
 
-        const transaction = await this.#postTransactionOnDB({
+        await this.#postTransactionOnDB({
           valor,
           status
         });
 
-        await fetch(ANTI_FRAUD_API, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-              idTransacao: transaction._id
-          }),
-        });
-
-        return res.status(400).send({ message: 'Dados inválidos' });
+        return res.status(400).send({ message: validateCard.message });
       }
 
       if (validateCard.rendaMensal >= 0.5 * valor) {
         status = 'Aprovada';
       }
-
+      res.status(200).send(validateCard)
       const transaction = await this.#postTransactionOnDB({
           valor,
-          idCliente: validateCard._id,
+          idCliente: validateCard.id,
           status
         });
 
@@ -75,17 +73,10 @@ class TransactionController {
           idTransacao: transaction._id
         };
 
-        await fetch(ANTI_FRAUD_API, {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(bodyAntiFraud),
-        });
+        await this.#postAPI(ANTI_FRAUD_API, bodyAntiFraud);
       };
 
-      res.status(status === 'Aprovada' ? 201 : 303).set('Location', `localhost:3002/api/admin/transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
+      res.status(status === 'Aprovada' ? 201 : 303).set('Location', `transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
 
     } catch (err) {
       console.log(err);
