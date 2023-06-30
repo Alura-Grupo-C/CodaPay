@@ -1,17 +1,58 @@
 /* eslint-disable no-underscore-dangle */
 import AnaliseAntiFraude from '../models/AnaliseAntiFraude.js';
 
+async function consultarCliente(id) {
+  try {
+    const url = `http://localhost:3001/api/admin/clientes/${id}`;
+    const response = await fetch(url, {
+      method: 'get',
+      dataType: 'json',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.status === 404) {
+      return null;
+    }
+    const dadosCliente = await response.json();
+    const cliente = dadosCliente.Cliente;
+    return cliente;
+  } catch (error) {
+    return null;
+  }
+}
+
 class AnaliseAntiFraudeController {
   static criarAnalise = async (req, res) => {
     try {
+      const idCliente = req.body.idCliente;
+      const idTransacao = req.body.idTransacao;
+      const valorTranferencia = req.body.valorTranferencia;
+
+      const informacoesCliente = await consultarCliente(idCliente);
+      if (!informacoesCliente) {
+        return res.status(404).json({ message: 'Cliente nao encontrado' });
+      }
+
+      const cliente = informacoesCliente[0].dadosPessoais;
+      const endereco = informacoesCliente[1].endereco;
+      const vencimento = informacoesCliente[2].vencimentoFatura;
+
       const analiseAntiFraude = new AnaliseAntiFraude({
-        ...req.body,
+        idCliente,
+        informacoesCliente: cliente,
+        enderecoCliente: endereco,
+        vencimentoFatura: vencimento,
+        idTransacao,
+        valorTranferencia,
         statusAnalise: 'em analise',
         dataCriacao: Date(),
         ultimaModificacao: Date(),
       });
+
       const response = await analiseAntiFraude.save();
-      return res.status(201).json(response);
+      return res.status(201).json({ idAnaliseAntiFraude: response.id });
     } catch (error) {
       if (error._message === 'analiseantifraudes validation failed') {
         return res.status(400).json({ message: `Falha no Validacao dos dados da Antifraude -  ${error.message}` });
@@ -23,7 +64,7 @@ class AnaliseAntiFraudeController {
 
   static listaAnalises = async (req, res) => {
     try {
-      const listagemAnalises = await AnaliseAntiFraude.find({ statusAnalise: 'em analise' });
+      const listagemAnalises = await AnaliseAntiFraude.find({ statusAnalise: 'em analise' }, { statusAnalise: 1, idCliente: 1, idTransacao: 1 });
 
       if (listagemAnalises.length > 0) {
         res.status(200).json(listagemAnalises);
@@ -55,9 +96,6 @@ class AnaliseAntiFraudeController {
       }
       if (statusAtual === 'rejeitada' || statusAtual === 'aprovada') {
         return res.status(403).send({ message: `não é possivel alterar o status da analise atual: '${statusAtual}'` });
-      }
-      if (statusAtual === novoStatus) {
-        return res.status(400).send({ message: 'o novo status não pode ser igual ao atual' });
       }
 
       await AnaliseAntiFraude.findByIdAndUpdate(id, {
