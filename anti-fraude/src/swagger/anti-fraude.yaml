@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: Clientes API
+  title: ANTI-FRAUDE API
   description: |-
-    API do microsserviço de Clientes
+    API do microsserviço de Anti-fraude
   version: 0.0.1
 servers:
   - url: http://localhost:3000
@@ -185,7 +185,7 @@ paths:
       tags:
         - "anti-fraude"
       summary: atualizar um statusAnalise 
-      description:  " status permitidos: 'em analise', 'aprovada', 'rejeitada'"
+      description:  " status permitidos: 'Aprovada', 'Em análise', 'Reprovada'"
       parameters:
         - name: id
           in: path
@@ -242,9 +242,9 @@ components:
           statusAnalise:
             type: string
             enum:
-            - 'em analise'
-            - 'aprovada'
-            - 'rejeitada'
+            - Aprovada
+            - Em análise 
+            - Reprovada 
           dataCriacao: 
             type: string
             format: date-time
@@ -268,9 +268,9 @@ components:
         statusAnalise:
             type: string
             enum:
-            - 'em analise'
-            - 'aprovada'
-            - 'rejeitada'
+            - Aprovada
+            - Em análise 
+            - Reprovada 
 
     AntiFraudeDetalharPorId:
         type: object
