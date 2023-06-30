@@ -1,4 +1,5 @@
 import Cliente from "../models/Cliente.js";
+import validate from "../validacao/validacaoCliente.js"
 
 class ClienteController{
 
@@ -43,7 +44,7 @@ class ClienteController{
 
     static validarDadosCliente = async (req, res) => {
       const { numeroCartao, nomeCartao, validadeCartao, cvcCartao } = req.body
-      
+      const data = new Date();
       try{
         const clientes = await Cliente.find()
         const resultado = clientes.filter((cliente, indice) => {
@@ -56,12 +57,18 @@ class ClienteController{
           const nome = resultado[0].dadosCartao.nomeCartao
           const dataValidade = resultado[0].dadosCartao.validadeCartao
           const cvc = resultado[0].dadosCartao.cvcCartao
+          let validadeData
             if(nomeCartao === nome && validadeCartao === dataValidade && cvcCartao === cvc){
               const renda = resultado[0].dadosPessoais.rendaMensal;
-              res.status(200).json({message:'dados válidos', id: id, rendaMensal: renda})
+              if(validate.data(dataValidade)){
+                validadeData = "Cartao tem data Vigente"
+              }else{
+                validadeData = "Cartão tem data Vencida"
+              }
+              res.status(200).json({message:'dados válidos', id: id, rendaMensal: renda, validadeData: validadeData})
             }
             else{
-              res.status(404).send('Dados do cartão invalido')
+              res.status(400).send('Dados do cartão invalido')
             }
           }else{
             res.status(404).send('Dados do cartão não encontrado')

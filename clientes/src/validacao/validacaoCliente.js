@@ -43,6 +43,34 @@ class validate{
             return re.test(complemento)
         }
     };
+
+    static numeroCartao = (numero) => {
+        const re = /^[0-9]{14,16}$/;
+        return re.test(numero);
+    }
+
+    static data = (dataCartao) => {
+        const dataAtual = new Date();
+        const dataProcesso = dataCartao.split('/');
+        const mesCartao = dataProcesso[0]
+        const anoCartao = dataProcesso[1]
+        const mesAtual = dataAtual.getMonth() + 1
+        const anoAtual = dataAtual.getFullYear()
+    
+        if(anoCartao > anoAtual){
+           return true
+        }
+        if(anoCartao < anoAtual){
+           return false
+        }else{
+            if(mesCartao > mesAtual){
+                return true
+            }
+            else{
+                return false
+            }
+        }  
+    }
 }
 
 export default validate;
