@@ -54,23 +54,24 @@ class TransactionController {
           status
         });
 
-        return res.status(400).send({ message: validateCard.message });
+        return res.status(400).send({ message: validateCard.response.message });
       }
 
-      if (validateCard.rendaMensal >= 0.5 * valor) {
+      if (validateCard.response.rendaMensal >= 0.5 * valor) {
         status = 'Aprovada';
       }
 
       const transaction = await this.#postTransactionOnDB({
           valor,
-          idCliente: validateCard.id,
+          idCliente: validateCard.response.id,
           status
         });
 
       if (status === 'Em análise') {
         const bodyAntiFraud = {
-          idCliente: validateCard._id,
-          idTransacao: transaction._id
+          idCliente: validateCard.response.id,
+          idTransacao: transaction._id,
+          valorTransacao: transaction.valor
         };
 
         await this.#postAPI(ANTI_FRAUD_API, bodyAntiFraud);
