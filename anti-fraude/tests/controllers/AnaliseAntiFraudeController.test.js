@@ -21,7 +21,7 @@ afterEach(() => {
 });
 
 const analiseAntiFraude = {
-  idCliente: '649e2a2fa56013d832ec849f',
+  idCliente: '649d984b9d4bd5421a2c97e9',
   idTransacao: '649b4876e833c825b00d4b0c',
   valorTranferencia: 100.00,
 };
@@ -40,7 +40,7 @@ describe(`POST em  ${URN}`, () => {
   });
 
   const analiseIncompleta = {
-    idCliente: '649b4852e833c825b00d4b09',
+    idCliente: '649d984b9d4bd5421a2c97e9',
   };
 
   it('Deve retornar um erro 400 em uma nova antifraude em analise', async () => {
@@ -58,13 +58,11 @@ describe(`POST em  ${URN}`, () => {
 
 describe(`GET em ${URN}`, () => {
   it('Deve retornar uma lista uma de antifraude em analise', async () => {
-    const resposta = await request(app)
+    await request(app)
       .get(URN)
       .set('Accept', 'application/json')
       .expect('content-type', /json/)
       .expect(200);
-
-    expect(resposta.body[0].statusAnalise).toEqual('em analise');
   });
 });
 

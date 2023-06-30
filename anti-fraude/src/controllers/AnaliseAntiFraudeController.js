@@ -4,7 +4,6 @@ import AnaliseAntiFraude from '../models/AnaliseAntiFraude.js';
 async function consultarCliente(id) {
   try {
     const url = `http://localhost:3001/api/admin/clientes/${id}`;
-    console.log(url);
     const response = await fetch(url, {
       method: 'get',
       dataType: 'json',
