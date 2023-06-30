@@ -1,11 +1,20 @@
 import Transaction from '../models/Transaction.js';
 import fetch from 'node-fetch'
 
-
 const VALIDATE_CARD_API = 'http://clientes:3001/api/admin/validar'
 const ANTI_FRAUD_API = 'http://anti-fraude:3000/api/admin/antifraude'
 
 class TransactionController {
+  // private method
+  static #postTransactionOnDB = async (data) => {
+    const transaction = new Transaction({
+      ...data
+    });
+    await transaction.save();
+
+    return transaction;
+  }
+
   static createTransaction = async (req, res) => {
     const { valor, nomeCartao, numeroCartao, validadeCartao, cvcCartao } = req.body;
 
@@ -29,6 +38,24 @@ class TransactionController {
       });
 
       if (validateCard.status === 404 || validateCard.status === 400) {
+        status = 'Reprovada';
+
+        const transaction = await this.#postTransactionOnDB({
+          valor,
+          status
+        });
+
+        await fetch(ANTI_FRAUD_API, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              idTransacao: transaction._id
+          }),
+        });
+
         return res.status(400).send({ message: 'Dados inválidos' });
       }
 
@@ -36,16 +63,13 @@ class TransactionController {
         status = 'Aprovada';
       }
 
-      const transaction = new Transaction({
+      const transaction = await this.#postTransactionOnDB({
           valor,
           idCliente: validateCard._id,
           status
         });
 
-      await transaction.save();
-
       if (status === 'Em análise') {
-
         const bodyAntiFraud = {
           idCliente: validateCard._id,
           idTransacao: transaction._id
@@ -62,6 +86,7 @@ class TransactionController {
       };
 
       res.status(status === 'Aprovada' ? 201 : 303).set('Location', `localhost:3002/api/admin/transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
+
     } catch (err) {
       console.log(err);
       res.status(500).send({message: err.message});
@@ -73,7 +98,6 @@ class TransactionController {
     
     try {
       const transaction =  await Transaction.findById(id)
-      .populate('idCliente') 
       return res.status(200).send(transaction)
       
     } catch (error) {
