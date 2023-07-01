@@ -9,13 +9,15 @@
         "dev": "nodemon server.js",
         "lint": "eslint ./src/**/*.js",
         "lint:fix": "eslint ./src/**/*.js --fix",
-        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
-        "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose --watch"
+        "test": "set \"NODE_ENV=test\" && node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose --detectOpenHandles",
+        "test:watch": "set \"NODE_ENV=test\" && node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose --watch --detectOpenHandles",
+        "test:coverage": "set \"NODE_ENV=test\" && node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose --coverage --detectOpenHandles"
     },
     "author": "",
     "license": "MIT",
     "dependencies": {
         "bcryptjs": "^2.4.3",
+        "dotenv": "^16.3.1",
         "express": "^4.17.3",
         "jsonwebtoken": "^9.0.0",
         "mongoose": "^6.2.6",
@@ -28,8 +30,8 @@
         "eslint": "^8.39.0",
         "eslint-config-airbnb-base": "^15.0.0",
         "eslint-plugin-import": "^2.27.5",
-        "jest": "28.1.2",
+        "jest": "^28.1.2",
         "nodemon": "^2.0.15",
-        "supertest": "6.2.4"
+        "supertest": "^6.2.4"
     }
 }

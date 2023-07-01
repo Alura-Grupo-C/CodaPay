@@ -1,8 +1,11 @@
 import Transaction from '../models/Transaction.js';
 import fetch from 'node-fetch'
+import dotenv from 'dotenv'
 
-const VALIDATE_CARD_API = 'http://clientes:3001/api/admin/validar'
-const ANTI_FRAUD_API = 'http://anti-fraude:3000/api/admin/antifraude'
+dotenv.config()
+
+const VALIDATE_CARD_API = process.env.NODE_ENV === 'test' ? 'http://localhost:3001/api/admin/validar' : 'http://clientes:3001/api/admin/validar'
+const ANTI_FRAUD_API = process.env.NODE_ENV === 'test' ? 'http://localhost:3000/api/admin/antifraude' : 'http://anti-fraude:3000/api/admin/antifraude'
 
 class TransactionController {
   // private method
@@ -57,7 +60,7 @@ class TransactionController {
         return res.status(400).send({ message: validateCard.response.message });
       }
 
-      if (validateCard.response.rendaMensal >= 0.5 * valor) {
+      if (validateCard.response.rendaMensal * 0.5 >= valor) {
         status = 'Aprovada';
       }
 
@@ -81,6 +84,9 @@ class TransactionController {
 
     } catch (err) {
       console.log(err);
+      if (err.name === 'ValidationError') {
+        return res.status(422).send({ message: err.message });
+      }
       res.status(500).send({message: err.message});
     }
   }
