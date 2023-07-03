@@ -32,7 +32,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/Account"
+                $ref: "#/components/schemas/Account"
         '401':
           description: unauthorized
   /api/admin/accounts/{id}:
@@ -100,6 +100,68 @@ paths:
           description: unauthorized
         '400':
           description: invalid ID supplied
+  /api/admin/transactions:
+    post:
+      summary: Create transaction
+      description: Create a new transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedTransaction'
+        '422':
+          description: transactionvalidation error
+          content:
+            application/json:
+              example: 'Validation Error'
+        '400':
+          description: error
+          content:
+            application/json:
+              example: 'Error'
+  /api/admin/transactions/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: Transaction ID
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Get transaction by ID
+      description: Get a transaction by its ID
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedTransaction'
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                example: 'Not Found'
+    put:
+      summary: Update transaction by ID
+      description: Update a transaction by its ID if its status is 'under analysis'
+      responses:
+        '204':
+          description: updated
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                example: 'Not Found'
 components:
   schemas:
     Account:
@@ -115,3 +177,26 @@ components:
         senha:
           type: string
           format: password
+    Transaction:
+      type: object
+      properties:
+        valor:
+          type: number
+          format: decimal
+        idCliente:
+          type: string
+        status:
+          type: string
+          enum: ['Aprovada', 'Em análise', 'Reprovada']
+    CreatedTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+        valor:
+          type: number
+        idCliente:
+          type: number
+        status:
+          type: string
+          enum: ['Aprovada', 'Em análise', 'Reprovada']
