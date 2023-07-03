@@ -1,4 +1,5 @@
-import Cliente from '../models/Cliente.js';
+import Cliente from "../models/Cliente.js";
+import validate from "../validacao/validacaoCliente.js"
 
 class ClienteController {
   static createCliente = (req, res) => {
@@ -54,9 +55,15 @@ static validarDadosCliente = async (req, res) => {
         const nome = resultado[0].dadosCartao.nomeCartao;
         const dataValidade = resultado[0].dadosCartao.validadeCartao;
         const cvc = resultado[0].dadosCartao.cvcCartao;
+        let validadeData;
         if (nomeCartao === nome && validadeCartao === dataValidade && cvcCartao === cvc) {
           const renda = resultado[0].dadosPessoais.rendaMensal;
-          res.status(200).json({ message: 'Dados válidos', id, rendaMensal: renda });
+          if (validate.data(dataValidade)) {
+            validadeData = "Cartão com data vigente"
+          } else {
+            validadeData = "Cartão com data vencida"
+          }
+          res.status(200).json({ message: 'Dados válidos', id, rendaMensal: renda, validadeData: validadeData });
         } else {
           res.status(400).send({ message: 'Dados do cartão inválidos' });
         }

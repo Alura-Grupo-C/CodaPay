@@ -70,7 +70,8 @@ export const ClienteSchema = new mongoose.Schema(
       dadosCartao:{
         numeroCartao:{
             type: String, 
-            required: true
+            required: true,
+            validate: [validate.numeroCartao, "Data inválida"]
         },
         nomeCartao:{
             type: String, 
