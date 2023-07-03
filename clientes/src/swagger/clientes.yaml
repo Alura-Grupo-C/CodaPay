@@ -9,12 +9,12 @@ paths:
     get:
       tags:
         - Clientes
-      summary: Listar os clientes
-      description: Listar todos os clientes
+      summary: List clients
+      description: List all clients
       parameters:
         - name: id
           in: path
-          description: ID do cliente
+          description: Client ID
           required: true
           schema:
             type: string
@@ -46,8 +46,8 @@ paths:
     post:
       tags:
         - Clientes
-      summary: validar dados
-      description: endpoint para validar dados de cartão
+      summary: Validate data
+      description: Endpoint to validate card data
       requestBody:
         content:
           application/json:
@@ -61,7 +61,7 @@ paths:
                 cvcCartao: "752"
       responses:
         '200':
-          description: valido
+          description: valid
           content:
             application/json:
               schema:
@@ -74,7 +74,7 @@ paths:
                     validadeCartao: 04/2028
                     cvcCartao: "752"
         '404':
-          description: numero de cartão não encontrado
+          description: Card number not found
   /api/admin/accounts:
     get:
       tags:
