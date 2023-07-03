@@ -1,10 +1,11 @@
 import app from '../../src/app.js'
 import Transaction from '../../src/models/Transaction.js';
 import request from 'supertest'
-import { createClient } from '../factories/transactionFactories.js';
+import { createClient, createTransaction } from '../factories/transactionFactories.js';
 import mongoose from 'mongoose';
 
 let server;
+let idToGet
 
 beforeAll(() => {
   server = app.listen(4000);
@@ -90,6 +91,7 @@ describe('POST /api/admin/transactions', () => {
     }
 
     const transaction = await request(app).post('/api/admin/transactions').send(transactionData);
+    idToGet = transaction.body.transactionId
 
     expect(transaction.status).toBe(201);
     expect(transaction.body).toEqual(
@@ -111,8 +113,8 @@ it('it should create an \'under analysis\' transaction if the card data matches 
         cvcCartao: client.dadosCartao.cvcCartao
     }
     
-    const transaction = await request(app).post('/api/admin/transactions').send(transactionData);
-    
+    const transaction = await request(app).post('/api/admin/transactions').send(transactionData)
+
     expect(transaction.status).toBe(303);
     expect(transaction.body).toEqual(
       expect.objectContaining({
@@ -120,5 +122,24 @@ it('it should create an \'under analysis\' transaction if the card data matches 
         transactionId: expect.any(String)
       })
     );
+  })
+  describe('GET by id /api/admin/transactions/:id', () => {
+    it('it should return the transaction details requested by id', async () => {
+      await request(app).get(`/api/admin/transactions/${idToGet}`).expect(200);
+    });
+  })
+  describe('PUT by id /api/admin/transactions/:id',  () => {
+    it('it should update transaction\'s status if the former status is \'Em Analise\'', async () => {
+      const trans = await createTransaction()
+      await request(app).put(`/api/admin/transactions/${trans._id}`)
+                        .send({status:'Reprovada'})
+                        .expect(204);
+    });
+    it('it shouldn\'t update transaction\'s status the param', async () => {
+      const trans = await createTransaction()
+      await request(app).put(`/api/admin/transactions/${trans._id}`)
+                        .send({status:'Reprovada'})
+                        .expect(204);
+    });
   })
 })
