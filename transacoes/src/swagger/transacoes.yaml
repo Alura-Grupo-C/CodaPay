@@ -9,6 +9,8 @@ paths:
     get:
       summary: List accounts
       description: List all accounts
+      tags:
+        - Accounts
       responses:
         '200':
           description: ok
@@ -21,6 +23,8 @@ paths:
     post:
       summary: Add account
       description: Add new account
+      tags:
+        - Accounts
       requestBody:
         content:
           application/json:
@@ -39,6 +43,8 @@ paths:
     get:
       summary: Find account
       description: Find one specific account
+      tags:
+        - Accounts
       parameters:
         - name: id
           in: path
@@ -60,6 +66,8 @@ paths:
     put:
       summary: Update account
       description: Update account by entering the whole updated account
+      tags:
+        - Accounts
       parameters:
       - name: id
         in: path
@@ -86,6 +94,8 @@ paths:
     delete:
       summary: Delete account
       description: Delete account by entering its ID
+      tags:
+        - Accounts
       parameters:
       - name: id
         in: path
@@ -104,6 +114,8 @@ paths:
     post:
       summary: Create transaction
       description: Create a new transaction
+      tags:
+        - Transactions
       requestBody:
         content:
           application/json:
@@ -126,6 +138,8 @@ paths:
           content:
             application/json:
               example: 'Error'
+      security:
+      - auth: []
   /api/admin/transactions/{id}:
     parameters:
     - name: id
@@ -137,6 +151,8 @@ paths:
     get:
       summary: Get transaction by ID
       description: Get a transaction by its ID
+      tags:
+        - Transactions
       responses:
         '200':
           description: ok
@@ -153,6 +169,8 @@ paths:
     put:
       summary: Update transaction by ID
       description: Update a transaction by its ID if its status is 'under analysis'
+      tags:
+        - Transactions
       responses:
         '204':
           description: updated
@@ -202,3 +220,8 @@ components:
         status:
           type: string
           enum: ['Aprovada', 'Em análise', 'Reprovada']
+  securitySchemes:
+    auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
