@@ -8,7 +8,7 @@ const transactionSchema = new mongoose.Schema(
   },
   {
     versionKey: false,
-  }
+  },
 );
 
 const Transaction = mongoose.model('transactions', transactionSchema);

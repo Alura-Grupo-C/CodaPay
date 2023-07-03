@@ -9,6 +9,8 @@ servers:
 paths:
   /api/admin/accounts:
     get:
+      security: 
+      - auth: []
       tags:
         - "accounts"
       summary: List accounts
@@ -43,6 +45,8 @@ paths:
           description: unauthorized
   /api/admin/accounts/{id}:
     get:
+      security: 
+      - auth: []
       tags:
         - "accounts"
       summary: Find account
@@ -66,6 +70,8 @@ paths:
         "404":
           description: not found
     put:
+      security: 
+      - auth: []
       tags:
         - "accounts"
       summary: Update account
@@ -94,6 +100,8 @@ paths:
         "401":
           description: unauthorized
     delete:
+      security: 
+      - auth: []
       tags:
         - "accounts"
       summary: Delete account
@@ -112,10 +120,37 @@ paths:
           description: unauthorized
         "400":
           description: invalid ID supplied
+  
+  /api/accounts/login:
+    post:
+      tags:
+        - "accounts"
+      summary: Login account
+      description: new account login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountLogin"
+      responses:
+        "201":
+          description: login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "401":
+          description: unauthorized
+
+
+
+
 
 # ANTIFRAUDES
   /api/admin/antifraude:
     get:
+      security: 
+      - auth: []
       tags:
         - "anti-fraude"
       summary: Lista analise de AntiFraude
@@ -157,6 +192,8 @@ paths:
 
   /api/admin/antifraude/{id}:
     get:
+      security: 
+      - auth: []
       tags:
         - "anti-fraude"
       summary: detalhar uma analise AntiFraude
@@ -182,6 +219,8 @@ paths:
         "500":
           description: internal server error
     put:
+      security: 
+      - auth: []
       tags:
         - "anti-fraude"
       summary: atualizar um statusAnalise 
@@ -217,8 +256,6 @@ components:
     Account:
       type: object
       properties:
-        id:
-          type: string
         nome:
           type: string
         email:
@@ -227,7 +264,17 @@ components:
         senha:
           type: string
           format: password
-          
+       
+    AccountLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        senha:
+          type: string
+          format: password
+       
     AntiFraudeListar:
       type: array
       items:
@@ -327,3 +374,13 @@ components:
           ultimaModificacao: 
             type: string
             format: date-time
+
+
+  securitySchemes:
+    auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+      
+      

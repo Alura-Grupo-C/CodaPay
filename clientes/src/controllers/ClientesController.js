@@ -1,12 +1,34 @@
-import Cliente from "../models/Cliente.js";
-import validate from "../validacao/validacaoCliente.js"
+import Cliente from '../models/Cliente.js';
+import cryptoHandler from '../../middlewares/cryptoHandler.js';
+import validate from '../validacao/validacaoCliente.js';
+
 
 class ClienteController {
-  static createCliente = (req, res) => {
+  static createCliente = async (req, res) => {
+    const { dadosPessoais, endereco, dadosCartao } = req.body;
+
+    const {
+      numeroCartao, nomeCartao, validadeCartao, cvcCartao, diaVencimentoFatura,
+    } = dadosCartao;
+
+    const numero = await cryptoHandler.criptografaDados(numeroCartao);
+    const nome = await cryptoHandler.criptografaDados(nomeCartao);
+    const cvc = await cryptoHandler.criptografaDados(cvcCartao);
+    const vencimentoFatura = await cryptoHandler.criptografaDados(diaVencimentoFatura);
+
     const cliente = new Cliente({
-      ...req.body,
+      dadosPessoais,
+      endereco,
+      dadosCartao: {
+        numeroCartao: numero,
+        nomeCartao: nome,
+        validadeCartao,
+        cvcCartao: cvc,
+        diaVencimentoFatura: vencimentoFatura,
+      },
       createdDate: Date(),
     });
+
     cliente.save((err, newCliente) => {
       if (err) {
         return res.status(500).send({ message: err.message });
@@ -41,40 +63,45 @@ class ClienteController {
     }
   };
 
-static validarDadosCliente = async (req, res) => {
+  static validarDadosCliente = async (req, res) => {
     const {
       numeroCartao, nomeCartao, validadeCartao, cvcCartao,
     } = req.body;
 
+    // 1234 4321 5678 8765 --> criptografa: fb1b6a64f271d8f578116f5425003003ca53cc0de7e3ebc997ff514b700ab6c6
+
+    const numero = await cryptoHandler.criptografaDados(numeroCartao);
+    const nome = await cryptoHandler.criptografaDados(nomeCartao);
+    const cvc = await cryptoHandler.criptografaDados(cvcCartao);
+
     try {
-      const clientes = await Cliente.find();
-      const resultado = clientes.filter((cliente, indice) => (cliente.dadosCartao.numeroCartao === numeroCartao));
-    
-      if (resultado) {
-        const id = resultado[0]._id;
-        const nome = resultado[0].dadosCartao.nomeCartao;
-        const dataValidade = resultado[0].dadosCartao.validadeCartao;
-        const cvc = resultado[0].dadosCartao.cvcCartao;
-        let validadeData;
-        if (nomeCartao === nome && validadeCartao === dataValidade && cvcCartao === cvc) {
-          const renda = resultado[0].dadosPessoais.rendaMensal;
-          if (validate.data(dataValidade)) {
-            validadeData = "Cartão com data vigente"
-          } else {
-            validadeData = "Cartão com data vencida"
-          }
-          res.status(200).json({ message: 'Dados válidos', id, rendaMensal: renda, validadeData: validadeData });
+      const cliente = await Cliente.findOne({ 'dadosCartao.numeroCartao': numero });
+      if (!cliente) return res.status(404).send('Dados do cartão inválidos');
+
+      const { dadosCartao } = cliente;
+
+      if (dadosCartao.nomeCartao === nome
+        && dadosCartao.validadeCartao === validadeCartao
+        && dadosCartao.cvcCartao === cvc) {
+        const renda = cliente.dadosPessoais.rendaMensal;
+
+        let validateDate;
+        if (validate.data(validadeCartao)) {
+          validateDate = "Cartão com data vigente"
         } else {
-          res.status(400).send({ message: 'Dados do cartão inválidos' });
+          validateDate = "Cartão com data vencida"
         }
+        return res.status(200).json({ message: 'Dados válidos', id, rendaMensal: renda, validateDate });
       } else {
-        res.status(404).send({ message: 'Dados do cartão não encontrados' });
+        res.status(400).send({ message: 'Dados do cartão inválidos' });
       }
+
+      return res.status(404).send('Dados do cartão não encontrado');
     } catch (erro) {
-      if (erro.message = "Cannot read properties of undefined (reading '_id')") {
-        return res.status(404).send({ message: 'Dados do cartão não encontrados' });
+      if (erro.message === "Cannot read properties of undefined (reading '_id')") {
+        return res.status(404).send('Dados do cartão não encontrado');
       }
-      res.status(500).send({ message: erro.message });
+      return res.status(500).send({ message: erro.message });
     }
   };
 }

@@ -1,6 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 import AnaliseAntiFraude from '../models/AnaliseAntiFraude.js';
 
+const EM_ANALISE = 'Em análise';
+const APROVADA = 'Aprovada';
+const REPROVADA = 'Reprovada';
+
 async function consultarCliente(id) {
   try {
     const url = `http://localhost:3001/api/admin/clientes/${id}`;
@@ -36,8 +40,13 @@ async function atualizarStatusTransacao(id, novoStatus) {
       },
       body: JSON.stringify(data),
     });
-    const transacao = await response.json();
-    return transacao;
+    if (response.status === 204) {
+      return response;
+    }
+    const messageText = await response.text();
+    const message = JSON.parse(messageText);
+
+    return { status: response.status, ...message };
   } catch (error) {
     return { status: 500, message: `falha no servidor: ${error}` };
   }
@@ -66,7 +75,7 @@ class AnaliseAntiFraudeController {
         vencimentoFatura: vencimento,
         idTransacao,
         valorTranferencia,
-        statusAnalise: 'Em análise',
+        statusAnalise: EM_ANALISE,
         dataCriacao: Date(),
         ultimaModificacao: Date(),
       });
@@ -77,14 +86,19 @@ class AnaliseAntiFraudeController {
       if (error._message === 'analiseantifraudes validation failed') {
         return res.status(400).json({ message: `Falha no Validacao dos dados da Antifraude -  ${error.message}` });
       }
-      console.log(error);
       return res.status(500).json({ message: `Falha no Servidor: ${error.message}` });
     }
   };
 
   static listaAnalises = async (req, res) => {
     try {
-      const listagemAnalises = await AnaliseAntiFraude.find({ statusAnalise: 'em analise' }, { statusAnalise: 1, idCliente: 1, idTransacao: 1 });
+      const listagemAnalises = await AnaliseAntiFraude.find({
+        statusAnalise: EM_ANALISE,
+      }, {
+        statusAnalise: 1,
+        idCliente: 1,
+        idTransacao: 1,
+      });
 
       if (listagemAnalises.length > 0) {
         res.status(200).json(listagemAnalises);
@@ -111,16 +125,16 @@ class AnaliseAntiFraudeController {
 
       const statusAtual = analiseAntiFraude.statusAnalise;
       const novoStatus = req.body.statusAnalise;
-      if (novoStatus !== 'Em análise' && novoStatus !== 'Aprovada' && novoStatus !== 'Reprovada') {
+      if (novoStatus !== EM_ANALISE && novoStatus !== APROVADA && novoStatus !== REPROVADA) {
         return res.status(400).send({ message: `O estado da analise '${novoStatus}' não é valido ` });
       }
-      if (statusAtual === 'Reprovada' || statusAtual === 'Aprovada') {
+      if (statusAtual === APROVADA || statusAtual === REPROVADA) {
         return res.status(403).send({ message: `não é possivel alterar o status da analise atual: '${statusAtual}'` });
       }
       const idTransacao = analiseAntiFraude.idTransacao;
       const transacao = await atualizarStatusTransacao(idTransacao, novoStatus);
 
-      if (transacao.status === 200) {
+      if (transacao.status === 204) {
         await AnaliseAntiFraude.findByIdAndUpdate(id, {
           $set: {
             statusAnalise: novoStatus,
