@@ -156,6 +156,8 @@ paths:
       responses:
         '204':
           description: updated
+        '400':
+          description: bad request
         '404':
           description: not found
           content:
@@ -196,7 +198,7 @@ components:
         valor:
           type: number
         idCliente:
-          type: number
+          type: string
         status:
           type: string
           enum: ['Aprovada', 'Em análise', 'Reprovada']
