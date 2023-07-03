@@ -1,16 +1,20 @@
 openapi: 3.0.3
 info:
-  title: Clientes API
+  title: ANTI-FRAUDE API
   description: |-
-    API do microsserviço de Clientes
+    API do microsserviço de Anti-fraude
   version: 0.0.1
+servers:
+  - url: http://localhost:3000
 paths:
   /api/admin/accounts:
     get:
+      tags:
+        - "accounts"
       summary: List accounts
       description: List all accounts
       responses:
-        '200':
+        "200":
           description: ok
           content:
             application/json:
@@ -19,6 +23,8 @@ paths:
                 items:
                   $ref: "#/components/schemas/Account"
     post:
+      tags:
+        - "accounts"
       summary: Add account
       description: Add new account
       requestBody:
@@ -27,16 +33,18 @@ paths:
             schema:
               $ref: "#/components/schemas/Account"
       responses:
-        '201':
+        "201":
           description: created
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/Account"
-        '401':
+                $ref: "#/components/schemas/Account"
+        "401":
           description: unauthorized
   /api/admin/accounts/{id}:
     get:
+      tags:
+        - "accounts"
       summary: Find account
       description: Find one specific account
       parameters:
@@ -47,59 +55,163 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ok
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/Account"
-        '400':
+                $ref: "#/components/schemas/Account"
+        "400":
           description: invalid ID supplied
-        '404':
+        "404":
           description: not found
     put:
+      tags:
+        - "accounts"
       summary: Update account
       description: Update account by entering the whole updated account
       parameters:
-      - name: id
-        in: path
-        description: ID of account that needs to be updated
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: ID of account that needs to be updated
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
             schema:
-                $ref: "#/components/schemas/Account"
+              $ref: "#/components/schemas/Account"
       responses:
-        '200':
+        "200":
           description: ok
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/Account"
-        '400':
+                $ref: "#/components/schemas/Account"
+        "400":
           description: invalid ID supplied
-        '401':
+        "401":
           description: unauthorized
     delete:
+      tags:
+        - "accounts"
       summary: Delete account
       description: Delete account by entering its ID
       parameters:
-      - name: id
-        in: path
-        description: ID of account that needs to be deleted
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: ID of account that needs to be deleted
+          required: true
+          schema:
+            type: string
       responses:
-        '204':
+        "204":
           description: no content
-        '401':
+        "401":
           description: unauthorized
-        '400':
+        "400":
           description: invalid ID supplied
+
+# ANTIFRAUDES
+  /api/admin/antifraude:
+    get:
+      tags:
+        - "anti-fraude"
+      summary: Lista analise de AntiFraude
+      description: Lista todas analise de AntiFraude
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AntiFraudeListar"
+        "404":
+          description: not found
+        "500":
+          description: internal server error
+    post:
+      tags:
+        - "anti-fraude"
+      summary: adicionar analise
+      description: adicionar uma nova analise de AntiFraude
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AntiFraudeCriar"
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                example: {idAnaliseAntiFraude: a000000000000000}
+        "401":
+          description: unauthorized
+        "500":
+          description: internal server error
+
+  /api/admin/antifraude/{id}:
+    get:
+      tags:
+        - "anti-fraude"
+      summary: detalhar uma analise AntiFraude
+      description: detalhar uma analise AntiFraude pelo id
+      parameters:
+        - name: id
+          in: path
+          description: ID da analise AntiFraude
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AntiFraudeDetalharPorId"
+        "400":
+          description: bad request
+        "404":
+          description: not found
+        "500":
+          description: internal server error
+    put:
+      tags:
+        - "anti-fraude"
+      summary: atualizar um statusAnalise 
+      description:  " status permitidos: 'Aprovada', 'Em análise', 'Reprovada'"
+      parameters:
+        - name: id
+          in: path
+          description: ID da analise AntiFraude
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AntiFraudeAlterarStatus"
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AntiFraudeDetalharPorId"
+        "400":
+          description: bad request
+        "404":
+          description: not found
+        "500":
+          description: internal server error
+
 components:
   schemas:
     Account:
@@ -115,3 +227,103 @@ components:
         senha:
           type: string
           format: password
+          
+    AntiFraudeListar:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+           type: string
+          idCliente:
+            type: string
+          idTransacao:
+            type: string
+          statusAnalise:
+            type: string
+            enum:
+            - Aprovada
+            - Em análise 
+            - Reprovada 
+          dataCriacao: 
+            type: string
+            format: date-time
+          ultimaModificacao: 
+            type: string
+            format: date-time
+
+    AntiFraudeCriar:
+      type: object
+      properties:
+        idCliente:
+          type: string
+        idTransacao:
+          type: string
+        valorTranferencia:
+          type: number
+
+    AntiFraudeAlterarStatus:
+      type: object
+      properties:
+        statusAnalise:
+            type: string
+            enum:
+            - Aprovada
+            - Em análise 
+            - Reprovada 
+
+    AntiFraudeDetalharPorId:
+        type: object
+        properties:
+          d:
+            type: string
+          statusAnalise:
+            type: string
+            enum:
+            - 'em analise'
+            - 'aprovada'
+          idCliente:
+            type: string
+          informacoesCliente:
+            type: object
+            properties:
+              nome:
+                type: string
+              cpf:
+                type: string
+              email:
+                type: string
+              telefone:
+                type: string
+              rendaMensal:
+                type: number
+              vencimentoFatura:
+                type: number
+                format: date
+          enderecoCliente:
+            type: object
+            properties:
+              ruaDoEndereco:
+                type: string
+              numeroDoEndereco:
+                type: string
+              complementoDoEndereco:
+                type: string
+              cepEndereco:
+                type: string
+              cidadeEndereco:
+                type: string
+              estadoEndereco:
+                type: string
+          vencimentoFatura:
+            type: number
+          idTransacao:
+            type: string
+          valorTranferencia:
+            type: number        
+          dataCriacao: 
+            type: string
+            format: date-time
+          ultimaModificacao: 
+            type: string
+            format: date-time

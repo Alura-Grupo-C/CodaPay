@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import validate from '../validacao/validacaoCliente.js'
 
-const ClienteSchema = new mongoose.Schema(
+export const ClienteSchema = new mongoose.Schema(
     {
       dadosPessoais:{
         nome: { 
