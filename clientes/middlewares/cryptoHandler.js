@@ -1,23 +1,32 @@
 import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const key = process.env.CRYPTO_KEY;
+const iv = process.env.CRYPTO_IV;
+
+function base64ToArrayBuffer(base64) {
+  var binary_string = atob(base64);
+  var len = binary_string.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
 
 class cryptoHandler {
   static criptografaDados = async (info) => {
-    const chave = randomBytes(32);
-    const vi = randomBytes(16);
-    const cifra = createCipheriv('aes256', chave, vi);
+    const cifra = createCipheriv('aes256', base64ToArrayBuffer(key), base64ToArrayBuffer(iv));
     const mensagemCifrada = await cifra.update(info, 'utf-8', 'hex') + cifra.final('hex');
-    console.log('senha_secreta', mensagemCifrada);
     return mensagemCifrada;
   };
-
   static decifraDados = async (info) => {
-    const chave = randomBytes(32);
-    const vi = randomBytes(16);
-    const decifra = createDecipheriv('aes256', chave, vi);
+    const decifra = createDecipheriv('aes256', base64ToArrayBuffer(key), base64ToArrayBuffer(iv));
 
     const mensagemDecifrada = await decifra.update(info, 'hex', 'utf-8') + decifra.final('utf-8');
 
-    console.log(`Decifrado: ${mensagemDecifrada.toString('utf-8')} `);
     return mensagemDecifrada;
   };
 }

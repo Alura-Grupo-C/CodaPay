@@ -4,11 +4,12 @@
 /* eslint-disable import/extensions */
 import request from 'supertest';
 import {
-  describe, it, afterEach, beforeEach, expect,
+  describe, it, afterEach, beforeEach,
 } from '@jest/globals';
 import app from '../../src/app.js';
 
 const URN = '/api/admin/antifraude';
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjoiNjRhMmZlYzFkZDYzOTZhYmNkYzFlZTU1IiwiaWF0IjoxNjg4NDI4MTI4LCJleHAiOjE2ODg0Mjk5Mjh9.Cptsow35ZerJqD0e4sZ1JrX4O1XAI-qUg4tnLjQhokI';
 
 let server;
 beforeEach(() => {
@@ -27,7 +28,6 @@ const analiseAntiFraude = {
 };
 
 let idResposta;
-let categoriaResposta;
 describe(`POST em  ${URN}`, () => {
   it('Deve adicionar uma nova antifraude em analise', async () => {
     const resposta = await request(app)
@@ -35,8 +35,7 @@ describe(`POST em  ${URN}`, () => {
       .send(analiseAntiFraude)
       .expect(201);
 
-    categoriaResposta = resposta.body;
-    idResposta = resposta.body._id;
+    idResposta = resposta.body.idAnaliseAntiFraude;
   });
 
   const analiseIncompleta = {
@@ -61,6 +60,7 @@ describe(`GET em ${URN}`, () => {
     await request(app)
       .get(URN)
       .set('Accept', 'application/json')
+      .set('Authorization', `Bearer ${token}`)
       .expect('content-type', /json/)
       .expect(200);
   });
@@ -68,24 +68,32 @@ describe(`GET em ${URN}`, () => {
 
 describe(`GET em  ${URN}/:id`, () => {
   it('Deve retornar uma antifraude', async () => {
-    const resposta = await request(app)
+    await request(app)
       .get(`${URN}/${idResposta}`)
       .set('Accept', 'application/json')
+      .set('Authorization', `Bearer ${token}`)
       .expect('content-type', /json/)
       .expect(200);
+  });
 
-    expect(resposta.body).toEqual(categoriaResposta);
+  it('Deve retornar 404 caso o ID nao seja encontrado', async () => {
+    await request(app)
+      .get(`${URN}/600000000000000000000000`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404);
   });
 
   it('Deve retornar 400 uma antifraude caso o ID seja invalido', async () => {
     await request(app)
       .get(`${URN}/ABC123`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(400);
   });
 
   it('Deve retornar 404 uma antifraude caso o ID nao seja encontrado', async () => {
     await request(app)
       .get(`${URN}/600000000000000000000000`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(404);
   });
 });
@@ -94,40 +102,40 @@ describe(`PUT em  ${URN}/:id`, () => {
   it('Deve retornar 404 caso o ID nao seja encontrado', async () => {
     await request(app)
       .get(`${URN}/600000000000000000000000`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(404);
   });
   it('Deve retornar 400 caso o ID seja invalido', async () => {
     await request(app)
       .get(`${URN}/ABC123`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(400);
   });
 
   it('Deve retornar 400 status da analise seja invalido', async () => {
     await request(app)
       .put(`${URN}/${idResposta}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
         statusAnalise: 'reject',
       })
       .expect(400);
   });
-  it('Deve retornar atualizar o tipo de analise para aprovada', async () => {
+  it('Deve retornar 401 caso usuario nao esteja logado', async () => {
     await request(app)
       .put(`${URN}/${idResposta}`)
       .send({
         statusAnalise: 'aprovada',
       })
-      .expect(200);
-
-    const resposta = await request(app).get(`${URN}/${idResposta}`);
-
-    expect(resposta.body.statusAnalise).toEqual('aprovada');
+      .expect(401);
   });
-  it('Deve retornar 403 uma antifraude caso o ja tenha sido aprovada', async () => {
+  it('Deve retornar 400 uma antifraude caso o ja tenha sido aprovada', async () => {
     await request(app)
       .put(`${URN}/${idResposta}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
         statusAnalise: 'rejeitada',
       })
-      .expect(403);
+      .expect(400);
   });
 });

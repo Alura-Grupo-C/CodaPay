@@ -12,13 +12,15 @@ class tokenHandler {
 
   static tokenVerifier = (req, res, next) => {
     const { authorization } = req.headers;
-    if (!authorization) return res.sendStatus(401);
-    const token = authorization.split(' ')[1]
+    if (!authorization) {
+      return res.status(401).send({ message: 'Token not found' });
+    }
+
+    const token = authorization.split(' ');
     try {
-      jwt.verify(token, JWT_SECRET, JWT_CONFIG);
+      jwt.verify(token[1], JWT_SECRET, JWT_CONFIG);
       return next();
     } catch (err) {
-      console.log(err)
       return res.status(401).send({ message: 'Expired or invalid token' });
     }
   };

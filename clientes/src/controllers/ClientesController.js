@@ -68,8 +68,6 @@ class ClienteController {
       numeroCartao, nomeCartao, validadeCartao, cvcCartao,
     } = req.body;
 
-    // 1234 4321 5678 8765 --> criptografa: fb1b6a64f271d8f578116f5425003003ca53cc0de7e3ebc997ff514b700ab6c6
-
     const numero = await cryptoHandler.criptografaDados(numeroCartao);
     const nome = await cryptoHandler.criptografaDados(nomeCartao);
     const cvc = await cryptoHandler.criptografaDados(cvcCartao);
@@ -77,7 +75,6 @@ class ClienteController {
     try {
       const cliente = await Cliente.findOne({ 'dadosCartao.numeroCartao': numero });
       if (!cliente) return res.status(404).send('Dados do cartão inválidos');
-
       const { dadosCartao } = cliente;
 
       if (dadosCartao.nomeCartao === nome
@@ -91,7 +88,7 @@ class ClienteController {
         } else {
           validateDate = "Cartão com data vencida"
         }
-        return res.status(200).json({ message: 'Dados válidos', id, rendaMensal: renda, validateDate });
+        return res.status(200).json({ message: 'Dados válidos', id: cliente._id, rendaMensal: renda, validateDate });
       } else {
         res.status(400).send({ message: 'Dados do cartão inválidos' });
       }
