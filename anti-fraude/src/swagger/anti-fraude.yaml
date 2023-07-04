@@ -164,6 +164,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AntiFraudeListar"
+        "401":
+          description: unauthorized
         "404":
           description: not found
         "500":
@@ -185,8 +187,6 @@ paths:
             application/json:
               schema:
                 example: {idAnaliseAntiFraude: a000000000000000}
-        "401":
-          description: unauthorized
         "500":
           description: internal server error
 
@@ -213,7 +213,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/AntiFraudeDetalharPorId"
         "400":
-          description: bad request
+          description: bad request     
+        "401":
+          description: unauthorized
         "404":
           description: not found
         "500":
@@ -246,6 +248,8 @@ paths:
                 $ref: "#/components/schemas/AntiFraudeDetalharPorId"
         "400":
           description: bad request
+        "401":
+          description: unauthorized
         "404":
           description: not found
         "500":
