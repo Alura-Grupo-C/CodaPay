@@ -3,7 +3,7 @@ import criptografia from '../../middlewares/bcryptMiddleware.js';
 import tokenHandler from '../../middlewares/jwtMiddleware.js';
 
 class AccountController {
-  static findAccounts = (req, res) => {
+  static findAccounts = (_req, res) => {
     Account.find((err, allAccounts) => {
       if (err) {
         return res.status(500).send({ message: err.message });
@@ -46,8 +46,7 @@ class AccountController {
       const senhaProvaReal = await criptografia.protegeSenha(senha);
       const account = await Account.findOne({ email, senhaProvaReal }).exec();
       const serverResponse = tokenHandler.tokenCreator(account.id);
-      req.headers.authorization = serverResponse;
-      return res.status(204).json();
+      return res.status(204).set('Authorization', serverResponse).json();
     } catch (err) {
       console.log(`catch error:, ${err}`);
     }
@@ -61,7 +60,7 @@ class AccountController {
       if (err) {
         return res.status(500).send({ message: err.message });
       }
-      return res.status(204).set('Location', `/ admin / accounts / ${account.id}`).send();
+      return res.status(204).set('Location', `/admin/accounts/${account.id}`).send();
     });
   };
 

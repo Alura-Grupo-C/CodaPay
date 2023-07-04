@@ -13,16 +13,18 @@ class TransactionController {
     let response = await fetch(api, {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data),
     });
+
     const status = response.status;
 
-    response = await response.json()
+    const text = await response.text()
 
-    return {status, response};
+    const message = JSON.parse(text);
+
+    return {status, response, message};
   }
 
   static #postTransactionOnDB = async (data) => {
@@ -38,10 +40,10 @@ class TransactionController {
     const { valor, nomeCartao, numeroCartao, validadeCartao, cvcCartao } = req.body;
 
     const body = {
-      numeroCartao,
-      nomeCartao,
-      validadeCartao,
-      cvcCartao
+      numeroCartao: numeroCartao === undefined ? '' : numeroCartao,
+      nomeCartao: nomeCartao === undefined ? '' : nomeCartao,
+      validadeCartao: validadeCartao === undefined ? '' : validadeCartao,
+      cvcCartao: cvcCartao === undefined ? '' : cvcCartao
     };
 
     let status = 'Em análise';
@@ -57,22 +59,22 @@ class TransactionController {
           status
         });
 
-        return res.status(400).send({ message: validateCard.response.message });
+        return res.status(400).send({ message: validateCard.message.message });
       }
 
-      if (validateCard.response.rendaMensal * 0.5 >= valor) {
+      if (validateCard.message.rendaMensal * 0.5 >= valor) {
         status = 'Aprovada';
       }
 
       const transaction = await this.#postTransactionOnDB({
           valor,
-          idCliente: validateCard.response.id,
+          idCliente: validateCard.message.id,
           status
         });
 
       if (status === 'Em análise') {
         const bodyAntiFraud = {
-          idCliente: validateCard.response.id,
+          idCliente: validateCard.message.id,
           idTransacao: transaction._id,
           valorTransacao: transaction.valor
         };
@@ -87,7 +89,7 @@ class TransactionController {
       if (err.name === 'ValidationError') {
         return res.status(422).send({ message: err.message });
       }
-      res.status(500).send({message: err.message});
+      return res.status(500).send({message: err.message});
     }
   }
 
@@ -124,7 +126,7 @@ class TransactionController {
       transaction.status = status
       await transaction.save()
 
-      res.status(204).send({message:`Status da Transação alterado para ${status}.`})
+      return res.status(204).send({message:`Status da Transação alterado para ${status}.`})
     
     } catch (error) {
       if (error.message.includes('Cast to ObjectId failed for value')) {
@@ -133,7 +135,7 @@ class TransactionController {
       if (error instanceof Error) {
         return res.status(400).send({message: error.message})
       } 
-      res.status(500).send({message: error.message});
+      return res.status(500).send({message: error.message});
     }
   }
 };

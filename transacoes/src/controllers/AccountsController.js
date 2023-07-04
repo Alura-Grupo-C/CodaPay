@@ -46,8 +46,7 @@ class AccountController {
       const senhaProvaReal = await criptografia.protegeSenha(senha);
       const account = await Account.findOne({ email, senhaProvaReal }).exec();
       const serverResponse = tokenHandler.tokenCreator(account.id);
-      req.headers.authorization = serverResponse;
-      return res.status(204).json();
+      return res.status(204).set('Authorization', `Bearer ${serverResponse}`).json();
     } catch (err) {
       console.log(`catch error:, ${err}`);
     }
