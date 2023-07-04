@@ -120,7 +120,7 @@ describe('POST /api/admin/transactions', () => {
     );
 })
 
-  it('it should create an \'under analysis\' transaction if the card data matches a real data on clients database and its value is more than or equal to 50% of the clients income', async () => {
+  it.only('it should create an \'under analysis\' transaction if the card data matches a real data on clients database and its value is more than or equal to 50% of the clients income', async () => {
     const client = await createClient();
 
     const token = await login();

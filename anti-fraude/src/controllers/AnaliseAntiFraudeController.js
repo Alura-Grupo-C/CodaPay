@@ -1,13 +1,20 @@
 /* eslint-disable no-underscore-dangle */
 import AnaliseAntiFraude from '../models/AnaliseAntiFraude.js';
+import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const EM_ANALISE = 'Em análise';
 const APROVADA = 'Aprovada';
 const REPROVADA = 'Reprovada';
 
+const CLIENT_API = process.env.NODE_ENV === 'test' ? 'http://localhost:3001/api/admin/clientes' : 'http://clientes:3001/api/admin/clientes'
+const TRANSACTION_API = process.env.NODE_ENV === 'test' ? 'http://localhost:3002/api/admin/transactions' : 'http://transacoes:3002/api/admin/transactions'
+
 async function consultarCliente(id) {
   try {
-    const url = `http://localhost:3001/api/admin/clientes/${id}`;
+    const url = `${CLIENT_API}/${id}`;
     const response = await fetch(url, {
       method: 'GET',
       dataType: 'json',
@@ -32,7 +39,7 @@ async function atualizarStatusTransacao(id, novoStatus) {
     status: novoStatus,
   };
   try {
-    const url = `http://localhost:3002/api/admin/transactions/${id}`;
+    const url = `${TRANSACTION_API}/${id}`;
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -57,7 +64,7 @@ class AnaliseAntiFraudeController {
     try {
       const idCliente = req.body.idCliente;
       const idTransacao = req.body.idTransacao;
-      const valorTranferencia = req.body.valorTranferencia;
+      const valorTranferencia = req.body.valorTransacao;
 
       const informacoesCliente = await consultarCliente(idCliente);
       if (!informacoesCliente) {
