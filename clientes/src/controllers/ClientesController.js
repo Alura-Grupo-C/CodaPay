@@ -40,9 +40,9 @@ class ClienteController {
   static findClientes = async (req, res) => {
     try {
       const pesquisa = await Cliente.find();
-      res.status(200).json({ Clientes: pesquisa });
+      return res.status(200).json({ Clientes: pesquisa });
     } catch (erro) {
-      res.status(500).json({ message: erro });
+      return res.status(500).json({ message: erro });
     }
   };
 
@@ -54,12 +54,12 @@ class ClienteController {
         const dadosPessoais = { dadosPessoais: cliente.dadosPessoais };
         const endereco = { endereco: cliente.endereco };
         const vencimentoFatura = { vencimentoFatura: cliente.dadosCartao.diaVencimentoFatura };
-        res.status(200).json({ Cliente: [dadosPessoais, endereco, vencimentoFatura] });
+        return res.status(200).json({ Cliente: [dadosPessoais, endereco, vencimentoFatura] });
       } else {
-        res.status(404).send({ message: 'Cliente não encontrado' });
+        return res.status(404).send({ message: 'Cliente não encontrado' });
       }
     } catch (erro) {
-      res.status(500).send({ message: erro.message });
+      return res.status(500).send({ message: erro.message });
     }
   };
 
@@ -90,7 +90,7 @@ class ClienteController {
         }
         return res.status(200).json({ message: 'Dados válidos', id: cliente._id, rendaMensal: renda, validateDate });
       } else {
-        res.status(400).send({ message: 'Dados do cartão inválidos' });
+        return res.status(400).send({ message: 'Dados do cartão inválidos' });
       }
 
       return res.status(404).send('Dados do cartão não encontrado');

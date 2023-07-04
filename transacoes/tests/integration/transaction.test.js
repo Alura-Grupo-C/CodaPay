@@ -94,7 +94,7 @@ describe('POST /api/admin/transactions', () => {
     expect(transaction.status).toBe(400);
   })
 
-  it.only('it should create an approved transaction if the card data matches a real data on clients database and its value is less than 50% of the clients income', async () => {
+  it('it should create an approved transaction if the card data matches a real data on clients database and its value is less than 50% of the clients income', async () => {
     const client = await createClient();
 
     const token = await login();
@@ -127,10 +127,10 @@ describe('POST /api/admin/transactions', () => {
     
     const transactionData = {
         valor: client.dadosPessoais.rendaMensal,
-        numeroCartao: client.dadosCartao.numeroCartao,
-        nomeCartao: client.dadosCartao.nomeCartao,
+        numeroCartao: '12345678901234',
+        nomeCartao: 'John',
         validadeCartao: client.dadosCartao.validadeCartao,
-        cvcCartao: client.dadosCartao.cvcCartao
+        cvcCartao: '012'
     }
     
     const transaction = await request(app).post('/api/admin/transactions').set('Authorization', token).send(transactionData)
