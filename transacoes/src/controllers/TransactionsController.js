@@ -20,6 +20,20 @@ class TransactionController {
     });
     const status = response.status;
 
+    return {status, response};
+  }
+
+  static #postAPIJson = async (api, data) => {
+    let response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+    });
+    const status = response.status;
+
     response = await response.json()
 
     return {status, response};
@@ -38,16 +52,16 @@ class TransactionController {
     const { valor, nomeCartao, numeroCartao, validadeCartao, cvcCartao } = req.body;
 
     const body = {
-      numeroCartao,
-      nomeCartao,
-      validadeCartao,
-      cvcCartao
+      numeroCartao: numeroCartao === undefined ? '' : numeroCartao,
+      nomeCartao: nomeCartao === undefined ? '' : nomeCartao,
+      validadeCartao: validadeCartao === undefined ? '' : validadeCartao,
+      cvcCartao: cvcCartao === undefined ? '' : cvcCartao
     };
 
     let status = 'Em análise';
 
     try {
-      const validateCard = await this.#postAPI(VALIDATE_CARD_API, body)
+      const validateCard = await this.#postAPIJson(VALIDATE_CARD_API, body)
 
       if (validateCard.status === 404 || validateCard.status === 400) {
         status = 'Reprovada';
@@ -77,7 +91,7 @@ class TransactionController {
           valorTransacao: transaction.valor
         };
 
-        await this.#postAPI(ANTI_FRAUD_API, bodyAntiFraud);
+        await this.#postAPIJson(ANTI_FRAUD_API, bodyAntiFraud);
       };
 
       return res.status(status === 'Aprovada' ? 201 : 303).set('Location', `transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
@@ -87,7 +101,7 @@ class TransactionController {
       if (err.name === 'ValidationError') {
         return res.status(422).send({ message: err.message });
       }
-      res.status(500).send({message: err.message});
+      return res.status(500).send({message: err.message});
     }
   }
 
@@ -124,7 +138,7 @@ class TransactionController {
       transaction.status = status
       await transaction.save()
 
-      res.status(204).send({message:`Status da Transação alterado para ${status}.`})
+      return res.status(204).send({message:`Status da Transação alterado para ${status}.`})
     
     } catch (error) {
       if (error.message.includes('Cast to ObjectId failed for value')) {
@@ -133,7 +147,7 @@ class TransactionController {
       if (error instanceof Error) {
         return res.status(400).send({message: error.message})
       } 
-      res.status(500).send({message: error.message});
+      return res.status(500).send({message: error.message});
     }
   }
 };

@@ -101,12 +101,12 @@ class AnaliseAntiFraudeController {
       });
 
       if (listagemAnalises.length > 0) {
-        res.status(200).json(listagemAnalises);
+        return res.status(200).json(listagemAnalises);
       } else {
-        res.status(404).send('Nenhuma análise encontrada');
+        return res.status(404).send('Nenhuma análise encontrada');
       }
     } catch (error) {
-      res.status(500).json(error);
+      return res.status(500).json(error);
     }
   };
 

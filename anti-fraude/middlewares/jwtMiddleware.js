@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = 'codaycoda';
-//
+
 const JWT_CONFIG = { expiresIn: '0.5h', algorithm: 'HS256' };
 
 class tokenHandler {
