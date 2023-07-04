@@ -20,7 +20,7 @@ const analiseAntiFraudeSchema = new mongoose.Schema(
       required: true,
     },
     vencimentoFatura: {
-      type: Number,
+      type: String,
       required: true,
     },
     idTransacao: {
