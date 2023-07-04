@@ -74,7 +74,7 @@ class ClienteController {
 
     try {
       const cliente = await Cliente.findOne({ 'dadosCartao.numeroCartao': numero });
-      if (!cliente) return res.status(404).send('Dados do cartão inválidos');
+      if (!cliente) return res.status(404).send({ message: 'Dados do cartão inválidos' });
       const { dadosCartao } = cliente;
 
       if (dadosCartao.nomeCartao === nome
@@ -92,8 +92,6 @@ class ClienteController {
       } else {
         return res.status(400).send({ message: 'Dados do cartão inválidos' });
       }
-
-      return res.status(404).send('Dados do cartão não encontrado');
     } catch (erro) {
       if (erro.message === "Cannot read properties of undefined (reading '_id')") {
         return res.status(404).send('Dados do cartão não encontrado');
