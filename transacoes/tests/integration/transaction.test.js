@@ -7,6 +7,7 @@ import Account from '../../src/models/Account.js';
 
 let server;
 let idToGet;
+let idToPut;
 
 beforeAll(() => {
   server = app.listen(4000);
@@ -109,8 +110,6 @@ describe('POST /api/admin/transactions', () => {
 
     const transaction = await request(app).post('/api/admin/transactions').set('Authorization', token).send(transactionData);
 
-    idToGet = transaction.body.transactionId
-
     expect(transaction.status).toBe(201);
     expect(transaction.body).toEqual(
       expect.objectContaining({
@@ -120,7 +119,7 @@ describe('POST /api/admin/transactions', () => {
     );
 })
 
-  it.only('it should create an \'under analysis\' transaction if the card data matches a real data on clients database and its value is more than or equal to 50% of the clients income', async () => {
+  it('it should create an \'under analysis\' transaction if the card data matches a real data on clients database and its value is more than or equal to 50% of the clients income', async () => {
     const client = await createClient();
 
     const token = await login();
@@ -147,22 +146,48 @@ describe('POST /api/admin/transactions', () => {
 
 describe('GET by id /api/admin/transactions/:id', () => {
   it('it should return the transaction details requested by id', async () => {
+    const client = await createClient();
+
+    const token = await login();
+
+    const transactionData = {
+      valor: client.dadosPessoais.rendaMensal * 0.2,
+      numeroCartao: '12345678901234',
+      nomeCartao: 'John',
+      validadeCartao: client.dadosCartao.validadeCartao,
+      cvcCartao: '012'
+    }
+
+    const transaction = await request(app).post('/api/admin/transactions').set('Authorization', token).send(transactionData);
+
+    idToGet = transaction.body.transactionId
+
     await request(app).get(`/api/admin/transactions/${idToGet}`).expect(200);
   });
 })
 
 describe('PUT by id /api/admin/transactions/:id',  () => {
-  it('it should update transaction\'s status if the former status is \'Em Analise\'', async () => {
-    const trans = await createTransaction()
-    await request(app).put(`/api/admin/transactions/${trans._id}`)
-                      .send({status:'Reprovada'})
-                      .expect(204);
+  it('it should update transaction\'s status if the former status is \'Em Análise\'', async () => {
+    const client = await createClient();
+
+    const token = await login();
+
+    const transactionData = {
+      valor: client.dadosPessoais.rendaMensal,
+      numeroCartao: '12345678901234',
+      nomeCartao: 'John',
+      validadeCartao: client.dadosCartao.validadeCartao,
+      cvcCartao: '012'
+    }
+
+    const transaction = await request(app).post('/api/admin/transactions').set('Authorization', token).send(transactionData);
+
+    idToPut = transaction.body.transactionId
+
+    await request(app).put(`/api/admin/transactions/${idToPut}`).send({status:'Reprovada'}).expect(204);
   });
 
-  it('it shouldn\'t update transaction\'s status the param', async () => {
-    const trans = await createTransaction()
-    await request(app).put(`/api/admin/transactions/${trans._id}`)
-                      .send({status:'Reprovada'})
-                      .expect(204);
+  it('it shouldn\'t update transaction\'s status param', async () => {
+    await request(app).put(`/api/admin/transactions/${idToPut}`).send({status:'Reprovada'}).expect(400);
   });
 })

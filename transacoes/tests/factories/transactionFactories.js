@@ -59,14 +59,16 @@ export async function createTransaction() {
   let responseTransaction = await fetch(POST_TRANS_API, {
     method: 'POST',
     headers: {
-      Accept: 'application/json',
       'Content-Type': 'application/json'
       },
       body: JSON.stringify(bodyTransaction),
   })
-  responseTransaction = await responseTransaction.json();
 
-  return responseTransaction;
+  responseTransaction = await responseTransaction.text();
+
+  const message = JSON.parse(responseTransaction);
+
+  return message;
 }
 
 export async function createAccount() {
