@@ -46,11 +46,11 @@ class AccountController {
       const senhaProvaReal = await criptografia.protegeSenha(senha);
       const account = await Account.findOne({ email, senhaProvaReal }).exec();
       const serverResponse = tokenHandler.tokenCreator(account.id);
-      res.set('Authorization', serverResponse);
-      return res.status(204).json();
+      return res.status(204).set('Authorization', serverResponse).json();
     } catch (err) {
-      return res.status(400).json({ message: 'usuario invalido' });
+      console.log(`catch error:, ${err}`);
     }
+    return res.status(400).json({ message: 'Bad Request. User not found' });
   };
 
   static updateAccount = (req, res) => {
