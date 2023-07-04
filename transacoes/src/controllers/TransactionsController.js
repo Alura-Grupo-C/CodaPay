@@ -13,30 +13,18 @@ class TransactionController {
     let response = await fetch(api, {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data),
     });
+
     const status = response.status;
 
-    return {status, response};
-  }
+    const text = await response.text()
 
-  static #postAPIJson = async (api, data) => {
-    let response = await fetch(api, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data),
-    });
-    const status = response.status;
+    const message = JSON.parse(text);
 
-    response = await response.json()
-
-    return {status, response};
+    return {status, response, message};
   }
 
   static #postTransactionOnDB = async (data) => {
@@ -61,7 +49,7 @@ class TransactionController {
     let status = 'Em análise';
 
     try {
-      const validateCard = await this.#postAPIJson(VALIDATE_CARD_API, body)
+      const validateCard = await this.#postAPI(VALIDATE_CARD_API, body)
 
       if (validateCard.status === 404 || validateCard.status === 400) {
         status = 'Reprovada';
@@ -71,27 +59,27 @@ class TransactionController {
           status
         });
 
-        return res.status(400).send({ message: validateCard.response.message });
+        return res.status(400).send({ message: validateCard.message.message });
       }
 
-      if (validateCard.response.rendaMensal * 0.5 >= valor) {
+      if (validateCard.message.rendaMensal * 0.5 >= valor) {
         status = 'Aprovada';
       }
 
       const transaction = await this.#postTransactionOnDB({
           valor,
-          idCliente: validateCard.response.id,
+          idCliente: validateCard.message.id,
           status
         });
 
       if (status === 'Em análise') {
         const bodyAntiFraud = {
-          idCliente: validateCard.response.id,
+          idCliente: validateCard.message.id,
           idTransacao: transaction._id,
           valorTransacao: transaction.valor
         };
 
-        await this.#postAPIJson(ANTI_FRAUD_API, bodyAntiFraud);
+        await this.#postAPI(ANTI_FRAUD_API, bodyAntiFraud);
       };
 
       return res.status(status === 'Aprovada' ? 201 : 303).set('Location', `transactions/${transaction._id}`).send({ transactionId: transaction._id, status })
