@@ -20,8 +20,6 @@ class TransactionController {
     });
     const status = response.status;
 
-    response = await response.json()
-
     return {status, response};
   }
 
@@ -38,17 +36,17 @@ class TransactionController {
     const { valor, nomeCartao, numeroCartao, validadeCartao, cvcCartao } = req.body;
 
     const body = {
-      numeroCartao,
-      nomeCartao,
-      validadeCartao,
-      cvcCartao
+      numeroCartao: numeroCartao === undefined ? '' : numeroCartao,
+      nomeCartao: nomeCartao === undefined ? '' : nomeCartao,
+      validadeCartao: validadeCartao === undefined ? '' : validadeCartao,
+      cvcCartao: cvcCartao === undefined ? '' : cvcCartao
     };
 
     let status = 'Em análise';
 
     try {
       const validateCard = await this.#postAPI(VALIDATE_CARD_API, body)
-
+      console.log(validateCard)
       if (validateCard.status === 404 || validateCard.status === 400) {
         status = 'Reprovada';
 
